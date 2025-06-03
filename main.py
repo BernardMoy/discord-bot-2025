@@ -1,16 +1,34 @@
-# This is a sample Python script.
+import discord
+from discord.ext import commands
+import logging
+from dotenv import load_dotenv
+import os
 
-# Press Ctrl+F5 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+load_dotenv()
 
+# get the token from env
+token = os.getenv('DISCORD_TOKEN')
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press F9 to toggle the breakpoint.
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+intents = discord.Intents.default()
+intents.message_content = True    # Two custom intents needed
+intents.members = True
 
+# Reference the bot using this "bot"
+bot = commands.Bot(command_prefix='-', intents=intents)
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+@bot.event
+async def on_ready():
+    print(f'We have logged in as {bot.user.name}')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    # Listen to hint messages from poketwo
+    if message.content.startswith("The pokémon is "):
+        await message.channel.send(message.author.mention + "Hello")
+
+# Run the bot at the end
+bot.run(token, log_level = logging.DEBUG)
