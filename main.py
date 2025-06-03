@@ -1,4 +1,5 @@
 import discord
+from discord import Color
 from discord.ext import commands
 import logging
 from dotenv import load_dotenv
@@ -33,7 +34,7 @@ async def on_message(message):
         # Extract the hint from the message
         hint = message.content[15:-1].lower()
         hint = hint.replace("\_", ".")  # Replace _ with . for regex matching
-        await message.channel.send(hint)
+        # await message.channel.send(hint)
 
         # Iterate over the currently 1025 pokemons using the poke API
         # Filter them by regex matching
@@ -45,8 +46,13 @@ async def on_message(message):
             if re.fullmatch(hint, pokemon["name"].lower()):
                 reply += pokemon["name"] + "\n"
 
-        # Create embed 
-        await message.channel.send(reply)
+        # Create embed
+        embed = discord.Embed(
+            title="Pokemon match results",
+            description="There are no matching pokemons!" if reply == "" else reply,
+            color= discord.Color.yellow() if reply != "" else discord.Color(int("0xeb348f", 16))
+        )
+        await message.channel.send(embed=embed)
 
     # Allow listening to message continuously
     await bot.process_commands(message)
