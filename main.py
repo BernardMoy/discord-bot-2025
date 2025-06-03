@@ -28,7 +28,17 @@ async def on_message(message):
 
     # Listen to hint messages from poketwo
     if message.content.startswith("The pokémon is "):
-        await message.channel.send(message.author.mention + "Hello")
+        # Extract the hint from the message
+        hint = message.content[14:-1]
+        hint.replace("\\", "")  # Remove all backslashes
+        await message.channel.send(hint)
+
+    # Allow listening to message continuously
+    await bot.process_commands(message)
+
+@bot.command()
+async def ping(ctx):
+    await ctx.send(f"{ctx.author.mention} Pong! {bot.latency * 1000:.2f}ms")
 
 # Run the bot at the end
 bot.run(token, log_level = logging.DEBUG)
