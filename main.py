@@ -79,7 +79,7 @@ current_wordle_word = ""
 
 # Function to return a random, 5 letter word
 def get_random_five_letter_word():
-    return random.choice(wordle_list)
+    return random.choice(list(wordle_list))
 
 @bot.command()
 async def wordle(ctx, guess = ""):     # Guess ia an optional argument
@@ -111,7 +111,7 @@ async def wordle(ctx, guess = ""):     # Guess ia an optional argument
             color=discord.Color(int("f5429e", 16))
         ))
 
-    elif len(guess) != 5:
+    elif len(guess) != 5 or guess not in wordle_list:
         # If the guess have incorrect length, warn the user
         await ctx.send(embed=discord.Embed(
             title="Invalid guess",
@@ -124,7 +124,12 @@ async def wordle(ctx, guess = ""):     # Guess ia an optional argument
         word_emojis = "".join([f":regional_indicator_{x}:" for x in guess])
         result = ""
         for i in range(5):
-            print('yay')
+            if current_wordle_word[i] == guess[i]:
+                result += ":green_square:"
+            elif guess[i] in list(current_wordle_word):
+                result += ":yellow_square:"
+            else:
+                result += ":black_large_square:"
 
         await ctx.send(f"{word_emojis}\n{result}")
 
