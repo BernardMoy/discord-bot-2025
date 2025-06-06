@@ -82,14 +82,25 @@ def get_random_five_letter_word():
     return random.choice(wordle_list)
 
 @bot.command()
-async def wordle(ctx, count):
-    if not count.isnumeric():
+async def wordle(ctx, guess = ""):     # Guess ia an optional argument 
+    """
+        if not count.isnumeric():
         await ctx.send("Please enter a number.")
         return
+    """
 
-    # Get a random five letter word
-    current_wordle_word = get_random_five_letter_word()
-    await ctx.send(current_wordle_word)
+    global current_wordle_word   # Refer to the global current wordle word variable here
+
+    # Get a random five letter word if guess is not provided
+    if guess == "":
+        current_wordle_word = get_random_five_letter_word()
+
+    elif current_wordle_word == "":
+        # If a guess is provided but the current five letter word is empty, warn the user
+        await ctx.send("You haven't started the game!")
+
+    else:
+        await ctx.send("23333")
 
 
 # Run the bot at the end
