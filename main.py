@@ -100,14 +100,33 @@ async def wordle(ctx, guess):
     # Trim the guess
     guess = guess.lower().strip()
 
+    # If guess is "-reset", reset it
+    if guess == "-reset":
+        current_wordle_word = get_random_five_letter_word()
+        current_wordle_result = ""
+        current_wordle_tries = 0
+
+        embed=discord.Embed(
+            title=f"Wordle reset",
+            description="Use -wordle xxxxx for your first guess",
+            color=discord.Color(int("42b0f5", 16))
+        )
+
+        await ctx.send(embed=embed)
+
+
     # Get a random five letter word if guess is not provided
-    if len(guess) != 5 or guess not in wordle_list:
+    elif len(guess) != 5 or guess not in wordle_list:
         # If the guess have incorrect length, warn the user
-        await ctx.send(embed=discord.Embed(
+        embed=discord.Embed(
             title="Invalid guess",
             description=f"{guess} is not a 5 letter word.",
             color=discord.Color(int("f5429e", 16))
-        ))
+        )
+
+        embed.set_footer(text="Use -wordle -reset to reset the game")
+
+        await ctx.send(embed=embed)
 
     else:
         # If the current wordle word is empty, get a new random five letter word
@@ -133,11 +152,14 @@ async def wordle(ctx, guess):
         # Add the tries
         current_wordle_tries += 1
 
-        await ctx.send(embed=discord.Embed(
+        embed=discord.Embed(
             title=f"Wordle {current_wordle_tries}/6",
             description=current_wordle_result,
             color=discord.Color(int("42b0f5", 16))
-        ))
+        )
+
+        embed.set_footer(text="Use -wordle -reset to reset the game")
+        await ctx.send(embed=embed)
 
         # If the guess is correct, send message
         if guess == current_wordle_word:
