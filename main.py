@@ -82,7 +82,7 @@ def get_random_five_letter_word():
     return random.choice(wordle_list)
 
 @bot.command()
-async def wordle(ctx, guess = ""):     # Guess ia an optional argument 
+async def wordle(ctx, guess = ""):     # Guess ia an optional argument
     """
         if not count.isnumeric():
         await ctx.send("Please enter a number.")
@@ -91,16 +91,42 @@ async def wordle(ctx, guess = ""):     # Guess ia an optional argument
 
     global current_wordle_word   # Refer to the global current wordle word variable here
 
+    # Trim the guess
+    guess = guess.lower().strip()
+
     # Get a random five letter word if guess is not provided
     if guess == "":
         current_wordle_word = get_random_five_letter_word()
+        await ctx.send(embed = discord.Embed(
+            title="Wordle started!",
+            description="Use -wordle guess to guess the 5 letter word.",
+            color=discord.Color(int("429ef5", 16))
+        ))
 
     elif current_wordle_word == "":
         # If a guess is provided but the current five letter word is empty, warn the user
-        await ctx.send("You haven't started the game!")
+        await ctx.send(embed=discord.Embed(
+            title="You haven't started the game",
+            description="Use -wordle to start a new round.",
+            color=discord.Color(int("f5429e", 16))
+        ))
+
+    elif len(guess) != 5:
+        # If the guess have incorrect length, warn the user
+        await ctx.send(embed=discord.Embed(
+            title="Invalid guess",
+            description=f"{guess} is not a 5 letter word.",
+            color=discord.Color(int("f5429e", 16))
+        ))
 
     else:
-        await ctx.send("23333")
+        # Iterate over every position of the guessed (5 letter) word
+        word_emojis = "".join([f":regional_indicator_{x}:" for x in guess])
+        result = ""
+        for i in range(5):
+            print('yay')
+
+        await ctx.send(f"{word_emojis}\n{result}")
 
 
 # Run the bot at the end
