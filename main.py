@@ -1,3 +1,5 @@
+import json
+
 import discord
 from discord import Color
 from discord.ext import commands
@@ -5,6 +7,8 @@ import logging
 from dotenv import load_dotenv
 import os
 import requests
+from wordle_list import wordle_list
+import random
 import re
 
 load_dotenv()
@@ -62,12 +66,31 @@ async def ping(ctx):
     await ctx.send(f"{ctx.author.mention} Pong! {bot.latency * 1000:.2f}ms")
 
 @bot.command()
-async def dm(ctx, *, msg):  # msg refers to the message (Parameters) after the command
+async def dm(ctx, *, msg):  # msg refers to the message (Parameters) after the command / * refers to single string afterwards
     await ctx.author.send(msg)   # DM private message the author
 
 @bot.command()
 async def reply(ctx, *, msg):
     await ctx.reply(msg)  # Reply with the user message
+
+
+# Variable that stores the current wordle 5 letter word
+current_wordle_word = ""
+
+# Function to return a random, 5 letter word
+def get_random_five_letter_word():
+    return random.choice(wordle_list)
+
+@bot.command()
+async def wordle(ctx, count):
+    if not count.isnumeric():
+        await ctx.send("Please enter a number.")
+        return
+
+    # Get a random five letter word
+    current_wordle_word = get_random_five_letter_word()
+    await ctx.send(current_wordle_word)
+
 
 # Run the bot at the end
 bot.run(token, log_level = logging.DEBUG)
