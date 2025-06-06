@@ -76,6 +76,8 @@ async def reply(ctx, *, msg):
 
 # Variable that stores the current wordle 5 letter word
 current_wordle_word = ""
+# Variable that stores the current wordle result
+current_wordle_result = ""
 
 # Function to return a random, 5 letter word
 def get_random_five_letter_word():
@@ -90,6 +92,7 @@ async def wordle(ctx, guess):
     """
 
     global current_wordle_word   # Refer to the global current wordle word variable here
+    global current_wordle_result
 
     # Trim the guess
     guess = guess.lower().strip()
@@ -119,7 +122,14 @@ async def wordle(ctx, guess):
             else:
                 result += ":black_large_square:"
 
-        await ctx.send(f"{word_emojis}\n{result}")
+        # Append to the global wordle result
+        current_wordle_result += "\n" + word_emojis + "\n" + result + "\n"
+
+        await ctx.send(embed=discord.Embed(
+            title="Wordle",
+            description=current_wordle_result,
+            color=discord.Color(int("42b0f5", 16))
+        ))
 
 
 # Run the bot at the end
