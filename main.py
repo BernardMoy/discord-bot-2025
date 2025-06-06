@@ -78,6 +78,8 @@ async def reply(ctx, *, msg):
 current_wordle_word = ""
 # Variable that stores the current wordle result
 current_wordle_result = ""
+# Variable that stores the number of tries
+current_wordle_tries = 0
 
 # Function to return a random, 5 letter word
 def get_random_five_letter_word():
@@ -93,6 +95,7 @@ async def wordle(ctx, guess):
 
     global current_wordle_word   # Refer to the global current wordle word variable here
     global current_wordle_result
+    global current_wordle_tries
 
     # Trim the guess
     guess = guess.lower().strip()
@@ -110,6 +113,8 @@ async def wordle(ctx, guess):
         # If the current wordle word is empty, get a new random five letter word
         if current_wordle_word == "":
             current_wordle_word = get_random_five_letter_word()
+            current_wordle_result = ""
+            current_wordle_tries = 0
 
         # Iterate over every position of the guessed (5 letter) word
         word_emojis = "".join([f":regional_indicator_{x}:" for x in guess])
@@ -125,11 +130,38 @@ async def wordle(ctx, guess):
         # Append to the global wordle result
         current_wordle_result += "\n" + word_emojis + "\n" + result + "\n"
 
+        # Add the tries
+        current_wordle_tries += 1
+
         await ctx.send(embed=discord.Embed(
-            title="Wordle",
+            title=f"Wordle {current_wordle_tries}/6",
             description=current_wordle_result,
             color=discord.Color(int("42b0f5", 16))
         ))
+
+        # If the guess is correct, send message
+        if guess == current_wordle_word:
+            await ctx.send(embed=discord.Embed(
+                title=f"You won!",
+                description=f":)",
+                color=discord.Color(int("93f542", 16))
+            ))
+
+            current_wordle_word = ""
+            current_wordle_result = ""
+            current_wordle_tries = 0
+
+        # If the number of tries is 6, end the game
+        elif current_wordle_tries == 6:
+            await ctx.send(embed=discord.Embed(
+                title=f"You lost!",
+                description=f"The word was {current_wordle_word}.",
+                color=discord.Color(int("f57b42", 16))
+            ))
+
+            current_wordle_word = ""
+            current_wordle_result = ""
+            current_wordle_tries = 0
 
 
 # Run the bot at the end
