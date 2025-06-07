@@ -126,7 +126,7 @@ async def wordle(ctx, guess=""):
         # If the guess have incorrect length, warn the user
         embed=discord.Embed(
             title="Invalid guess",
-            description=f"{guess} is not a 5 letter word.",
+            description=f"`{guess}` is not a 5 letter word.",
             color=discord.Color(int("f5429e", 16))
         )
 
@@ -171,7 +171,7 @@ async def wordle(ctx, guess=""):
         if guess == current_wordle_word:
             await ctx.send(embed=discord.Embed(
                 title=f"You won!",
-                description=f":)",
+                description=ctx.author.mention,
                 color=discord.Color(int("93f542", 16))
             ))
 
@@ -183,7 +183,7 @@ async def wordle(ctx, guess=""):
         elif current_wordle_tries == 6:
             await ctx.send(embed=discord.Embed(
                 title=f"You lost!",
-                description=f"The word was {current_wordle_word}.",
+                description=f"The word was `{current_wordle_word}`.",
                 color=discord.Color(int("f57b42", 16))
             ))
 
