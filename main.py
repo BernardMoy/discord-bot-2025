@@ -85,13 +85,9 @@ current_wordle_tries = 0
 def get_random_five_letter_word():
     return random.choice(list(wordle_list))
 
+
 @bot.command()
-async def wordle(ctx, guess):
-    """
-        if not count.isnumeric():
-        await ctx.send("Please enter a number.")
-        return
-    """
+async def wordle(ctx, guess=""):
 
     global current_wordle_word   # Refer to the global current wordle word variable here
     global current_wordle_result
@@ -100,14 +96,24 @@ async def wordle(ctx, guess):
     # Trim the guess
     guess = guess.lower().strip()
 
+    # If guess is not provided, send usage message
+    if guess == '':
+        embed = discord.Embed(
+            title="Usage",
+            description=f"`-wordle [guess]` or \n `-wordle -reset` to reset",
+            color=discord.Color(int("f5429e", 16))
+        )
+        await ctx.send(embed=embed)
+
+
     # If guess is "-reset", reset it
-    if guess == "-reset":
+    elif guess == "-reset":
         current_wordle_word = get_random_five_letter_word()
         current_wordle_result = ""
         current_wordle_tries = 0
 
         embed=discord.Embed(
-            title=f"Wordle reset",
+            title=f"Wordle has been reset",
             description="Use -wordle xxxxx for your first guess",
             color=discord.Color(int("42b0f5", 16))
         )
