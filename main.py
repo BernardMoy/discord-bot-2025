@@ -80,6 +80,8 @@ current_wordle_word = ""
 current_wordle_result = ""
 # Variable that stores the number of tries
 current_wordle_tries = 0
+# Store all used letters
+current_wordle_dict = set()
 
 # Function to return a random, 5 letter word
 def get_random_five_letter_word():
@@ -88,6 +90,17 @@ def get_random_five_letter_word():
 
 @bot.command()
 async def wordle(ctx, guess=""):
+
+    def reset_wordle():
+        global current_wordle_word
+        global current_wordle_result
+        global current_wordle_tries
+
+        current_wordle_word = ""
+        current_wordle_result = ""
+        current_wordle_tries = 0
+
+    
 
     global current_wordle_word   # Refer to the global current wordle word variable here
     global current_wordle_result
@@ -108,9 +121,8 @@ async def wordle(ctx, guess=""):
 
     # If guess is "-reset", reset it
     elif guess == "-reset":
+        reset_wordle()
         current_wordle_word = get_random_five_letter_word()
-        current_wordle_result = ""
-        current_wordle_tries = 0
 
         embed=discord.Embed(
             title=f"Wordle has been reset",
@@ -121,25 +133,37 @@ async def wordle(ctx, guess=""):
         await ctx.send(embed=embed)
 
 
-    # Get a random five letter word if guess is not provided
     elif len(guess) != 5 or guess not in wordle_list:
-        # If the guess have incorrect length, warn the user
+        # If the guess has incorrect length or is not a valid word, warn the user
         embed=discord.Embed(
             title="Invalid guess",
             description=f"`{guess}` is not a 5 letter word.",
             color=discord.Color(int("f5429e", 16))
         )
 
-        embed.set_footer(text="Use -wordle -reset to reset the game")
+        # Set the footer by including the keyboard and the reset warning
+        footer_text = ""
+        for char in "qwertyuiop":
+            footer_text += f":regional_indicator_{char}: "
+        footer_text += '\n    '
 
+        for char in "asdfghjkl":
+            footer_text += f":regional_indicator_{char}: "
+        footer_text += '\n        '
+
+        for char in "zxcvbnm":
+            footer_text += f":regional_indicator_{char}: "
+        footer_text += '\n\n'
+
+        footer_text += "Use -wordle -reset to reset the game"
+        embed.set_footer(text=footer_text)
         await ctx.send(embed=embed)
 
     else:
         # If the current wordle word is empty, get a new random five letter word
         if current_wordle_word == "":
+            reset_wordle()
             current_wordle_word = get_random_five_letter_word()
-            current_wordle_result = ""
-            current_wordle_tries = 0
 
         # Iterate over every position of the guessed (5 letter) word
         word_emojis = "".join([f":regional_indicator_{x}:" for x in guess])
@@ -175,9 +199,7 @@ async def wordle(ctx, guess=""):
                 color=discord.Color(int("93f542", 16))
             ))
 
-            current_wordle_word = ""
-            current_wordle_result = ""
-            current_wordle_tries = 0
+            reset_wordle()
 
         # If the number of tries is 6, end the game
         elif current_wordle_tries == 6:
@@ -187,9 +209,7 @@ async def wordle(ctx, guess=""):
                 color=discord.Color(int("f57b42", 16))
             ))
 
-            current_wordle_word = ""
-            current_wordle_result = ""
-            current_wordle_tries = 0
+            reset_wordle()
 
 
 # Run the bot at the end
