@@ -95,16 +95,35 @@ async def wordle(ctx, guess=""):
         global current_wordle_word
         global current_wordle_result
         global current_wordle_tries
+        global current_wordle_dict
 
         current_wordle_word = ""
         current_wordle_result = ""
         current_wordle_tries = 0
+        current_wordle_dict.clear()
 
-    
+    def get_keyboard():
+        global current_wordle_dict
+        keyboard = ""
+        for char in "qwertyuiop":
+            keyboard += f":regional_indicator_{char}: " if char not in current_wordle_dict else ":black_large_square: "
+        keyboard += '\n    '
+
+        for char in "asdfghjkl":
+            keyboard += f":regional_indicator_{char}: " if char not in current_wordle_dict else ":black_large_square: "
+        keyboard += '\n        '
+
+        for char in "zxcvbnm":
+            keyboard += f":regional_indicator_{char}: " if char not in current_wordle_dict else ":black_large_square: "
+        keyboard += '\n'
+
+        return keyboard
+
 
     global current_wordle_word   # Refer to the global current wordle word variable here
     global current_wordle_result
     global current_wordle_tries
+    global current_wordle_dict
 
     # Trim the guess
     guess = guess.lower().strip()
@@ -126,7 +145,7 @@ async def wordle(ctx, guess=""):
 
         embed=discord.Embed(
             title=f"Wordle has been reset",
-            description="Use -wordle xxxxx for your first guess",
+            description="Use -wordle `xxxxx` for your first guess",
             color=discord.Color(int("42b0f5", 16))
         )
 
@@ -137,26 +156,12 @@ async def wordle(ctx, guess=""):
         # If the guess has incorrect length or is not a valid word, warn the user
         embed=discord.Embed(
             title="Invalid guess",
-            description=f"`{guess}` is not a 5 letter word.",
+            description=f"`{guess}` is not a 5 letter word. \n\n {get_keyboard()}",
             color=discord.Color(int("f5429e", 16))
         )
 
         # Set the footer by including the keyboard and the reset warning
-        footer_text = ""
-        for char in "qwertyuiop":
-            footer_text += f":regional_indicator_{char}: "
-        footer_text += '\n    '
-
-        for char in "asdfghjkl":
-            footer_text += f":regional_indicator_{char}: "
-        footer_text += '\n        '
-
-        for char in "zxcvbnm":
-            footer_text += f":regional_indicator_{char}: "
-        footer_text += '\n\n'
-
-        footer_text += "Use -wordle -reset to reset the game"
-        embed.set_footer(text=footer_text)
+        embed.set_footer(text="Use -wordle -reset to reset the game")
         await ctx.send(embed=embed)
 
     else:
@@ -176,15 +181,18 @@ async def wordle(ctx, guess=""):
             else:
                 result += ":black_large_square:"
 
+                # Add the used character to the dict
+                current_wordle_dict.add(guess[i])
+
         # Append to the global wordle result
-        current_wordle_result += "\n" + word_emojis + "\n" + result + "\n"
+        current_wordle_result += f"\n {word_emojis} \n{result} \n"
 
         # Add the tries
         current_wordle_tries += 1
 
         embed=discord.Embed(
             title=f"Wordle {current_wordle_tries}/6",
-            description=current_wordle_result,
+            description=f"{current_wordle_result} \n\n {get_keyboard()}",
             color=discord.Color(int("42b0f5", 16))
         )
 
