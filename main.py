@@ -233,7 +233,8 @@ async def wordle(ctx, guess=""):
 @bot.command()
 async def leaderboard(ctx, category = ""):
     if category == "wordle":
-        return
+        rows = db_get_wordle_leaderboard(ctx)
+        await ctx.send(rows)
 
 # Run the bot at the end
 bot.run(token, log_level = logging.DEBUG)

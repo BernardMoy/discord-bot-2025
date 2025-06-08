@@ -25,4 +25,12 @@ def db_put_wordle_win(ctx, word):
         print(e)
 
 def db_get_wordle_leaderboard(ctx):
+    # Query the (user, number of wins) pairs from the user wordle db
+    # Sorted in descending order of wins
+    try:
+        rows = cursor.execute("""SELECT user_id, COUNT(*) AS count FROM user_wordle ORDER BY COUNT DESC""").fetchall()
+        return rows
+
+    except Exception as e:
+        print(e)
     pass
