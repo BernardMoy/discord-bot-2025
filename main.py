@@ -1,7 +1,6 @@
 import json
 
 import discord
-from discord import Color
 from discord.ext import commands
 import logging
 from dotenv import load_dotenv
@@ -10,6 +9,7 @@ import requests
 from wordle_list import wordle_list
 import random
 import re
+from database import *
 
 load_dotenv()
 
@@ -26,6 +26,9 @@ bot = commands.Bot(command_prefix='-', intents=intents)
 
 @bot.event
 async def on_ready():
+    # Connect to sqlite database
+    init_db()
+
     print(f'We have logged in as {bot.user.name}')
 
 @bot.event
@@ -219,6 +222,11 @@ async def wordle(ctx, guess=""):
 
             reset_wordle()
 
+
+@bot.command()
+async def leaderboard(ctx, category = ""):
+    if category == "wordle":
+        return
 
 # Run the bot at the end
 bot.run(token, log_level = logging.DEBUG)
