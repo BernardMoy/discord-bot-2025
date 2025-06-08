@@ -230,11 +230,36 @@ async def wordle(ctx, guess=""):
             reset_wordle()
 
 
+# Generate a leaderboard from the SQL query result
+def generate_leaderboard(rows):
+    leaderboard_text = ""
+    for i in range(len(rows)):
+        user_id, count = rows[i]
+
+        # Show the 1, 2, 3 badges
+        if i == 0:
+            leaderboard_text += ":first_place:"
+        elif i == 1:
+            leaderboard_text += ":second_place:"
+        elif i == 2:
+            leaderboard_text += ":third_place:"
+        else:
+            leaderboard_text += f"{i+1}. "
+
+        # Add the user mention and the count
+        leaderboard_text += f"<@{user_id}> - {count}\n"
+    return leaderboard_text
+
 @bot.command()
 async def leaderboard(ctx, category = ""):
     if category == "wordle":
         rows = db_get_wordle_leaderboard(ctx)
-        await ctx.send(rows)
+        embed = discord.Embed(
+            title=f"Wordle leaderboard",
+            description=generate_leaderboard(rows),
+            color=discord.Color(int("833efa", 16))
+        )
+        await ctx.send(embed=embed)
 
 # Run the bot at the end
 bot.run(token, log_level = logging.DEBUG)
