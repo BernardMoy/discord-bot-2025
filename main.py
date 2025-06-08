@@ -41,7 +41,6 @@ async def on_message(message):
         # Extract the hint from the message
         hint = message.content[15:-1].lower()
         hint = hint.replace("\_", ".")  # Replace _ with . for regex matching
-        # await message.channel.send(hint)
 
         # Iterate over the currently 1025 pokemons using the poke API
         # Filter them by regex matching
@@ -88,7 +87,11 @@ current_wordle_dict = set()
 
 # Function to return a random, 5 letter word
 def get_random_five_letter_word():
-    return random.choice(list(wordle_list))
+    word = random.choice(list(wordle_list))
+
+    # Print the word
+    print(f"New wordle round started: {word}")
+    return word
 
 
 @bot.command()
@@ -210,6 +213,10 @@ async def wordle(ctx, guess=""):
                 color=discord.Color(int("93f542", 16))
             ))
 
+            # Add to database
+            db_put_wordle_win(ctx, current_wordle_word)
+
+            # Reset the wordle for the next round
             reset_wordle()
 
         # If the number of tries is 6, end the game
