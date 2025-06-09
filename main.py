@@ -29,6 +29,9 @@ async def on_ready():
     # Connect to sqlite database
     init_db()
 
+    # Sync bot tree for slash commands
+    await bot.tree.sync()
+
     print(f'We have logged in as {bot.user.name}')
 
 @bot.event
@@ -67,9 +70,12 @@ async def on_message(message):
 async def ping(ctx):
     await ctx.send(f"{ctx.author.mention} Pong! {bot.latency * 1000:.2f}ms")
 
-@bot.command()
+@bot.hybrid_command(name="dm", description="Send DM to user", with_app_command=True)
 async def dm(ctx, *, msg):  # msg refers to the message (Parameters) after the command / * refers to single string afterwards
     await ctx.author.send(msg)   # DM private message the author
+
+    # Message reply with an ephemeral message
+    await ctx.reply("DM Sent!", ephemeral=True)
 
 @bot.command()
 async def reply(ctx, *, msg):
