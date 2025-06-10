@@ -26,8 +26,10 @@ def db_put_wordle_win(ctx, word):
         cursor.execute("INSERT INTO user_wordle VALUES (?, ?)",
                        (ctx.author.id, word))
         conn.commit()
+        return True
     except Exception as e:
         print(e)
+        return False
 
 def db_get_wordle_leaderboard():
     # Query the (user, number of wins) pairs from the user wordle db
@@ -38,7 +40,6 @@ def db_get_wordle_leaderboard():
 
     except Exception as e:
         print(e)
-    pass
 
 # Set the admin message channel, or update it if already exists
 def db_set_admin_messages_channel(ctx):
@@ -51,6 +52,8 @@ def db_set_admin_messages_channel(ctx):
         cursor.execute("""INSERT OR REPLACE INTO guild_adminchannel VALUES (?, ?)""", (guild_id, channel_id))
 
         conn.commit()
+        return True
 
     except Exception as e:
         print(e)
+        return False

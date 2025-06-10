@@ -282,5 +282,21 @@ async def admin_error(ctx, error):
         description="You do not have permissions to execute this command."
     ))
 
+# Set the admin message channel
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def setadminmessagechannel(ctx):
+    result = db_set_admin_messages_channel(ctx)
+    if result:
+        await ctx.send(embed=discord.Embed(
+            title="Admin message channel set",
+            color=discord.Color(int("54ff6e", 16)),
+            description="Use -telladmin [message] to tell messages to admins, which will appear in this channel."
+        ))
+
+
+# Remove the admin message channel
+
+
 # Run the bot at the end
 bot.run(token, log_level = logging.DEBUG)
