@@ -310,7 +310,7 @@ async def removeadminmessagechannel(ctx):
 
 # Tell admin messages to the channel that was set up
 @bot.command()
-async def telladmin(ctx, message=""):
+async def telladmin(ctx, *, message=""):
     # Get the channel id that was set up for admin messaging
     message_channel = db_get_admin_messages_channel(ctx)
 
@@ -333,9 +333,14 @@ async def telladmin(ctx, message=""):
         return
 
     # Send the user's message in the message channel
-    print(message_channel)
     channel = bot.get_channel(message_channel)
-    await channel.send(message)
+    embed = discord.Embed(
+        title = "New Message",
+        description=message,
+        color=discord.Color(int("ffe354", 16))
+    )
+    embed.set_footer(text=ctx.author.name, icon_url=ctx.author.display_avatar.url)  # User info in footer
+    await channel.send(embed=embed)
 
 # Run the bot at the end
 bot.run(token, log_level = logging.DEBUG)
