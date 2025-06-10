@@ -314,6 +314,9 @@ async def telladmin(ctx, *, message=""):
     # Get the channel id that was set up for admin messaging
     message_channel = db_get_admin_messages_channel(ctx)
 
+    # trim the message
+    message = message.strip()
+
     # If the message channel does not exist, this command cannot be used
     if not message_channel:
         await ctx.send(embed=discord.Embed(
@@ -341,6 +344,17 @@ async def telladmin(ctx, *, message=""):
     )
     embed.set_footer(text=ctx.author.name, icon_url=ctx.author.display_avatar.url)  # User info in footer
     await channel.send(embed=embed)
+
+    # Afterwards, delete the user message
+    await ctx.message.delete()
+
+    # And send an ephemeral message / DM to the user t
+    await ctx.author.send(embed =discord.Embed(
+        title = "Message sent to admins",
+        description=message,
+        color=discord.Color(int("ffe354", 16))
+    ))
+
 
 # Run the bot at the end
 bot.run(token, log_level = logging.DEBUG)
