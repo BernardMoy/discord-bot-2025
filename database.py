@@ -48,9 +48,22 @@ def db_set_admin_messages_channel(ctx):
     channel_id = ctx.channel.id
 
     try:
-        # Check if the guild data already exists
+        # Insert or update data
         cursor.execute("""INSERT OR REPLACE INTO guild_adminchannel VALUES (?, ?)""", (guild_id, channel_id))
 
+        conn.commit()
+        return True
+
+    except Exception as e:
+        print(e)
+        return False
+
+# Remove the admin message channel
+def db_remove_admin_messages_channel(ctx):
+    # Get the guild and channel id
+    guild_id = ctx.guild.id
+    try:
+        cursor.execute("""DELETE FROM guild_adminchannel WHERE guild_id = ?""", (guild_id, ))
         conn.commit()
         return True
 

@@ -291,11 +291,21 @@ async def setadminmessagechannel(ctx):
         await ctx.send(embed=discord.Embed(
             title="Admin message channel set",
             color=discord.Color(int("54ff6e", 16)),
-            description="Use -telladmin [message] to tell messages to admins, which will appear in this channel."
+            description="Use `-telladmin [message]` to tell messages to admins, which will appear in this channel."
         ))
 
 
 # Remove the admin message channel
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def removeadminmessagechannel(ctx):
+    result = db_remove_admin_messages_channel(ctx)
+    if result:
+        await ctx.send(embed=discord.Embed(
+            title="Admin message channel removed",
+            color=discord.Color(int("ffcc54", 16)),
+            description="Users can no longer use `-telladmin` until another channel is set."
+        ))
 
 
 # Run the bot at the end
