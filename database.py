@@ -70,3 +70,13 @@ def db_remove_admin_messages_channel(ctx):
     except Exception as e:
         print(e)
         return False
+
+# Get the admin message channel id, or None if it does not exist
+def db_get_admin_messages_channel(ctx):
+    guild_id = ctx.guild.id
+    try:
+        rows = cursor.execute("""SELECT channel_id FROM guild_adminchannel WHERE guild_id = ?""", (guild_id,)).fetchall()
+        return rows[0][0]
+    except Exception as e:
+        print(e)
+        return None
