@@ -309,7 +309,7 @@ async def removeadminmessagechannel(ctx):
 
 
 # Tell admin messages to the channel that was set up
-@bot.command()
+@bot.hybrid_command(name="telladmin", description="Tell admins a message. Your message will not be shown to others.")
 async def telladmin(ctx, *, message=""):
     # Get the channel id that was set up for admin messaging
     message_channel = db_get_admin_messages_channel(ctx)
@@ -345,15 +345,23 @@ async def telladmin(ctx, *, message=""):
     embed.set_footer(text=ctx.author.name, icon_url=ctx.author.display_avatar.url)  # User info in footer
     await channel.send(embed=embed)
 
-    # Afterwards, delete the user message
-    await ctx.message.delete()
 
-    # And send an ephemeral message / DM to the user t
-    await ctx.author.send(embed =discord.Embed(
-        title = "Message sent to admins",
-        description=message,
-        color=discord.Color(int("ffe354", 16))
-    ))
+    # If the user is using slash command, reply them
+    # Else DM them
+    if ctx.interaction is not None:   # Check if user is using SLASH COMMAND (APP COMMANDS)
+        await ctx.reply("Message sent!", ephemeral = True)
+
+    else:
+        # Afterwards, delete the user message
+        await ctx.message.delete()
+
+
+        # Send dm
+        await ctx.author.send(embed =discord.Embed(
+            title = "Message sent to admins",
+            description=message,
+            color=discord.Color(int("ffe354", 16))
+        ))
 
 
 # Run the bot at the end
