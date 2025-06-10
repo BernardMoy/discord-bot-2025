@@ -8,9 +8,14 @@ def init_db():
     cursor.execute("""
                    CREATE TABLE IF NOT EXISTS user_wordle
                    (
-                       user_id INTEGER, 
-                       word TEXT, 
-                       FOREIGN KEY (user_id) REFERENCES users(user_id)
+                       user_id INTEGER PRIMARY KEY, 
+                       word TEXT NOT NULL
+                    )
+                   """)
+    cursor.execute("""
+                   CREATE TABLE IF NOT EXISTS guild_adminchannel(
+                    guild_id INTEGER PRIMARY KEY, 
+                    channel_id INTEGER NOT NULL 
                     )
                    """)
 
@@ -24,7 +29,7 @@ def db_put_wordle_win(ctx, word):
     except Exception as e:
         print(e)
 
-def db_get_wordle_leaderboard(ctx):
+def db_get_wordle_leaderboard():
     # Query the (user, number of wins) pairs from the user wordle db
     # Sorted in descending order of wins
     try:
@@ -34,3 +39,18 @@ def db_get_wordle_leaderboard(ctx):
     except Exception as e:
         print(e)
     pass
+
+# Set the admin message channel, or update it if already exists
+def db_set_admin_messages_channel(ctx):
+    # Get the guild and channel id
+    guild_id = ctx.guild.id
+    channel_id = ctx.channel.id
+
+    try:
+        # Check if the guild data already exists
+        cursor.execute("""INSERT OR REPLACE INTO guild_adminchannel VALUES (?, ?)""", (guild_id, channel_id))
+
+        conn.commit()
+
+    except Exception as e:
+        print(e)

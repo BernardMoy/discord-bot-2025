@@ -256,6 +256,8 @@ def generate_leaderboard(rows):
         leaderboard_text += f"<@{user_id}> - {count}\n"
     return leaderboard_text
 
+# Show the leaderboard of different games
+# Of the table user_<game> in the sql schema
 @bot.command()
 async def leaderboard(ctx, category = ""):
     if category == "wordle":
@@ -266,6 +268,12 @@ async def leaderboard(ctx, category = ""):
             color=discord.Color(int("833efa", 16))
         )
         await ctx.send(embed=embed)
+
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def admin(ctx):
+    await ctx.send(f"{ctx.author.mention} is an admin.")
+
 
 # Run the bot at the end
 bot.run(token, log_level = logging.DEBUG)
