@@ -274,6 +274,13 @@ async def leaderboard(ctx, category = ""):
 async def admin(ctx):
     await ctx.send(f"{ctx.author.mention} is an admin.")
 
+@admin.error
+async def admin_error(ctx, error):
+    await ctx.send(embed = discord.Embed(
+        title="Missing permissions",
+        color=discord.Color(int("fc6f03", 16)),
+        description="You do not have permissions to execute this command."
+    ))
 
 # Run the bot at the end
 bot.run(token, log_level = logging.DEBUG)
