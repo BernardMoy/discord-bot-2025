@@ -7,7 +7,7 @@ class TellAdmin(commands.Cog):
         self.bot = bot
 
     # Set the admin message channel
-    @commands.command()
+    @commands.command(description = "Set the current channel to be the admin message channel")
     @commands.has_permissions(administrator=True)
     async def setadminmessagechannel(self, ctx):
         result = db_set_admin_messages_channel(ctx)
@@ -19,7 +19,7 @@ class TellAdmin(commands.Cog):
             ))
 
     # Remove the admin message channel
-    @commands.command()
+    @commands.command(description = "Remove the admin message channel of the server")
     @commands.has_permissions(administrator=True)
     async def removeadminmessagechannel(self, ctx):
         result = db_remove_admin_messages_channel(ctx)
