@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import random
-from wordle_list import wordle_list
+from data.wordle_list import wordle_list
 from database import *
 
 

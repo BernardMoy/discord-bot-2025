@@ -1,13 +1,9 @@
-import json
-
 import discord
 from discord.ext import commands
 import logging
 from dotenv import load_dotenv
 import os
 import requests
-from wordle_list import wordle_list
-import random
 import re
 from database import *
 import asyncio
@@ -72,10 +68,21 @@ async def on_message(message):
 
 # Load extension from cogs in the cogs folder
 async def load():
-    for filename in os.listdir('./cogs'):
-        if filename.endswith(".py") and filename != "__init__.py":
-            await bot.load_extension(f"cogs.{filename[:-3]}")
+    for dirpath, _, filenames in os.walk("./cogs"):
+        for filename in filenames:
+            if filename.endswith(".py") and filename != "__init__.py":
+                # Join the dirpath with the leaf py file
+                path = os.path.join(dirpath, filename)
 
+                # Convert to python path
+                path_replaced = path.replace("/", ".").replace("\\", ".")
+
+                # Prevent paths such as ..cogs.basics.py
+                if path_replaced.startswith("."):
+                    path_replaced = path_replaced[2:]
+
+                # Load extension from cogs
+                await bot.load_extension(path_replaced[:-3])
 
 
 @bot.command()
