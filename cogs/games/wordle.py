@@ -49,7 +49,7 @@ class Wordle(commands.Cog):
 
         return keyboard
 
-    @commands.command()
+    @commands.command(description = "Play 5-letter wordle")
     async def wordle(self, ctx, guess=""):
         # Trim the guess
         guess = guess.lower().strip()

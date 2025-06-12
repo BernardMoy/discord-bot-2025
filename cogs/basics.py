@@ -6,7 +6,7 @@ class Basics(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(description = "Ping the bot")
     async def ping(self, ctx):
         await ctx.send(f"{ctx.author.mention} Pong! {self.bot.latency * 1000:.2f}ms")
 
@@ -17,7 +17,7 @@ class Basics(commands.Cog):
         # Message reply with an ephemeral message
         await ctx.reply("DM Sent!", ephemeral=True)
 
-    @commands.command()
+    @commands.command(description = "Reply to user's message")
     async def reply(self, ctx, *, msg):
         await ctx.reply(msg)  # Reply with the user message
 

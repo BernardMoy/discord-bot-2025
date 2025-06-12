@@ -5,7 +5,7 @@ class CheckAdmin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(description = "Check if the current user is an admin")
     @commands.has_permissions(administrator=True)
     async def admin(self, ctx):
         await ctx.send(f"{ctx.author.mention} is an admin.")
