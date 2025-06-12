@@ -10,6 +10,7 @@ from wordle_list import wordle_list
 import random
 import re
 from database import *
+import asyncio
 
 load_dotenv()
 
@@ -31,6 +32,9 @@ async def on_ready():
 
     # Sync bot tree for slash commands
     await bot.tree.sync()
+
+    # Change the status message of the bot
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="-help"))
 
     print(f'We have logged in as {bot.user.name}')
 
@@ -66,9 +70,12 @@ async def on_message(message):
     # Allow listening to message continuously
     await bot.process_commands(message)
 
-@bot.command()
-async def ping(ctx):
-    await ctx.send(f"{ctx.author.mention} Pong! {bot.latency * 1000:.2f}ms")
+# Load extension from cogs in the cogs folder
+async def load():
+    for filename in os.listdir('./cogs'):
+        if filename.endswith(".py") and filename != "__init__.py":
+            await bot.load_extension(f"cogs.{filename[:-3]}")
+
 
 @bot.hybrid_command(name="dm", description="Send DM to user", with_app_command=True)
 async def dm(ctx, *, msg):  # msg refers to the message (Parameters) after the command / * refers to single string afterwards
@@ -363,6 +370,8 @@ async def telladmin(ctx, *, message=""):
             color=discord.Color(int("ffe354", 16))
         ))
 
+async def main():
+    await load()
+    await bot.start(token)
 
-# Run the bot at the end
-bot.run(token, log_level = logging.DEBUG)
+asyncio.run(main())
