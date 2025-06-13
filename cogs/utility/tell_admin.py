@@ -6,31 +6,6 @@ class TellAdmin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # Set the admin message channel
-    @commands.command(description = "Set the current channel to be the admin message channel")
-    @commands.has_permissions(administrator=True)
-    async def setadminmessagechannel(self, ctx):
-        result = db_set_admin_messages_channel(ctx)
-        if result:
-            await ctx.send(embed=discord.Embed(
-                title="Admin message channel set",
-                color=discord.Color(int("54ff6e", 16)),
-                description="Use `-telladmin [message]` to tell messages to admins, which will appear in this channel."
-            ))
-
-    # Remove the admin message channel
-    @commands.command(description = "Remove the admin message channel of the server")
-    @commands.has_permissions(administrator=True)
-    async def removeadminmessagechannel(self, ctx):
-        result = db_remove_admin_messages_channel(ctx)
-        if result:
-            await ctx.send(embed=discord.Embed(
-                title="Admin message channel removed",
-                color=discord.Color(int("ffcc54", 16)),
-                description="Users can no longer use `-telladmin` until another channel is set."
-            ))
-
-
     # Tell admin messages to the channel that was set up
     @commands.hybrid_command(name="telladmin",
                         description="Tell admins a message. Your message will not be shown to others.")
