@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from database import *
+import time
 
 class TellAdmin(commands.Cog):
     def __init__(self, bot):
@@ -41,6 +42,14 @@ class TellAdmin(commands.Cog):
             description=message,
             color=discord.Color(int("ffe354", 16))
         )
+
+        # Get the current time
+        current_time = int(time.time())
+
+        # Add field including the time
+        embed.add_field(name="Time", value=f"<t:{current_time}>", inline=False)
+
+        # Add the author information in footer
         embed.set_footer(text=ctx.author.name, icon_url=ctx.author.display_avatar.url)  # User info in footer
         await channel.send(embed=embed)
 
