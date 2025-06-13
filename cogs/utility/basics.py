@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import discord
 from discord.ext import commands
 
@@ -20,15 +22,32 @@ class Basics(commands.Cog):
     @commands.hybrid_command(name="reply", description = "Reply to user's message", with_app_command=True)
     async def reply(self, ctx, *, msg):
         await ctx.reply(msg)  # Reply with the user message
-    
+
     @commands.hybrid_command(name="help", description="List all available commands", with_app_command=True)
     async def help(self, ctx):
+        # Dict to store cogNames (Categories) : command Names
+        commands_dict = defaultdict(list)
         for command in self.bot.commands:
-            print("Cog name: " + command.cog_name)
-            print("Command name: " + command.name)
-            print("Description: " + command.description)
-            print("-------------------")
+            commands_dict[command.cog_name].append((command.name, command.description))
 
+        # Iterate the dict to print the embed
+        embed = discord.Embed(
+            title="Welcome :)",
+            colour=discord.Color(int("a8ccff", 16)),
+            description = "Command prefix: `-`"
+        )
+
+        for key, value in commands_dict.items():
+            text = ""
+            for name, description in value:
+                text += f"`-{name}`: {description}\n"
+            embed.add_field(name=key, value=text, inline=False)
+
+        # Add the bot name
+        embed.set_author(name=self.bot.user.name,
+                         icon_url=self.bot.user.avatar.url if self.bot.user.avatar is not None else "https://cdn.discordapp.com/embed/avatars/0.png")
+
+        await ctx.send(embed=embed)
 
 
 async def setup(bot):
