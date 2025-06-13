@@ -30,6 +30,15 @@ class Leaderboard(commands.Cog):
     # Of the table user_<game> in the sql schema
     @commands.command(description = "Show the leaderboard of different games")
     async def leaderboard(self, ctx, category=""):
+        if category == '':
+            embed = discord.Embed(
+                title="Usage",
+                description=f"`-leaderboard [game]`",
+                color=discord.Color(int("f5429e", 16))
+            )
+            await ctx.send(embed=embed)
+            return
+
         if category == "wordle":
             rows = db_get_wordle_leaderboard()
             embed = discord.Embed(
