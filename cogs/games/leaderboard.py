@@ -28,7 +28,7 @@ class Leaderboard(commands.Cog):
 
     # Show the leaderboard of different games
     # Of the table user_<game> in the sql schema
-    @commands.command(description = "Show the leaderboard of different games. Use with `-leaderboard [game]`")
+    @commands.command(description = "Show the leaderboard of different games")
     async def leaderboard(self, ctx, category=""):
         if category == "wordle":
             rows = db_get_wordle_leaderboard()

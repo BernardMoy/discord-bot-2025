@@ -8,7 +8,7 @@ class Basics(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(name = "pm", description = "Ping the bot", with_app_command=True)
+    @commands.hybrid_command(name = "ping", description = "Ping the bot", with_app_command=True)
     async def ping(self, ctx):
         await ctx.send(f"{ctx.author.mention} Pong! {self.bot.latency * 1000:.2f}ms")
 
