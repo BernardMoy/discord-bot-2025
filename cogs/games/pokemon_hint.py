@@ -19,15 +19,23 @@ class PokemonHint(commands.Cog):
             hint = message.content[15:-1].lower()
             hint = hint.replace("\_", ".")  # Replace _ with . for regex matching
 
+            """
             # Iterate over the currently 1025 pokemons using the poke API
             # Filter them by regex matching
             response = requests.get("https://pokeapi.co/api/v2/pokemon?limit=10000")
             data = response.json()
+            """
 
-            reply = ""
-            for pokemon in data["results"]:
-                if re.fullmatch(hint, pokemon["name"].lower()):
-                    reply += pokemon["name"] + "\n"
+            # Read the pokemon names file
+            with open("./data/pokemon_names.txt", "r") as file:
+                pokemon_list = file.read().splitlines()
+
+                reply = ""
+                for pokemon in pokemon_list:
+                    if re.fullmatch(hint, pokemon.lower()):
+                        reply += pokemon + "\n"
+
+                file.close()
 
             # Create embed
             embed = discord.Embed(
