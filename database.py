@@ -1,4 +1,5 @@
 import sqlite3
+import time
 
 conn = sqlite3.connect("discordbot.db")
 cursor = conn.cursor()
@@ -24,6 +25,16 @@ def init_db():
                    CREATE TABLE IF NOT EXISTS guild_qotdchannel(
                     guild_id INTEGER PRIMARY KEY, 
                     channel_id INTEGER NOT NULL 
+                    )
+                   """)
+    cursor.execute("""
+                   CREATE TABLE IF NOT EXISTS qotds(
+                    qotd_id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    question TEXT NOT NULL, 
+                    user_id INTEGER NOT NULL, 
+                    guild_id INTEGER NOT NULL, 
+                    scheduled_time INTEGER NOT NULL, 
+                    sent BOOLEAN DEFAULT FALSE
                     )
                    """)
 
@@ -131,3 +142,26 @@ def db_get_qotd_channel(ctx):
     except Exception as e:
         print(e)
         return None
+
+# Get the next qotd scheduled time of the current guild
+def db_get_qotd_next_scheduled_time(ctx):
+    guild_id = ctx.guild.id
+    try:
+        # Get the time of the latest unsent message
+        latest_time = cursor.execute("""
+            SELECT COALESCE((
+                SELECT scheduled_time FROM qotds 
+                WHERE guild_id = ? AND sent = FALSE 
+                ORDER BY scheduled_time DESC LIMIT 1
+            ), 0)
+        """, (guild_id,)).fetchone()
+
+        current_time = int(time.time())
+
+        # Return the maximum of (current_time, latest_time)
+        return max(current_time, latest_time)
+
+    except Exception as e:
+        print(e)
+        return None
+
