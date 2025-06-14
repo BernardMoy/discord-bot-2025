@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import logging
+from discord.ext import tasks
 from dotenv import load_dotenv
 import os
 from database import *
@@ -55,9 +55,17 @@ async def load():
                 # Load extension from cogs
                 await bot.load_extension(path_replaced[:-3])
 
+@tasks.loop(seconds=10)
+async def loop():
+    print("Looping")
+
+
 logging.basicConfig(level=logging.DEBUG)
 async def main():
     await load()
+    await loop.start()
+
+    # Start the bot here. Do not code below this line 
     await bot.start(token)
 
 asyncio.run(main())
