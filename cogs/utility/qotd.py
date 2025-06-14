@@ -1,10 +1,11 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from database import *
 
 class Qotd(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.loop.start()
 
     @commands.hybrid_command(name="qotd",
                              description="Ask a question of the day")
@@ -46,6 +47,13 @@ class Qotd(commands.Cog):
         )
         embed.set_footer(text="It may take up to a minute for the question to show up")
         await ctx.send(embed=embed)
+
+    # Loop that executes every minute to check for new, unsent qotds
+    @tasks.loop(seconds=10)
+    async def loop(self):
+        print("Checking for new qotds...")
+        
+
 
 async def setup(bot):
     await bot.add_cog(Qotd(bot))

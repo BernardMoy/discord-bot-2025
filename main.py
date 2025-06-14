@@ -55,9 +55,6 @@ async def load():
                 # Load extension from cogs
                 await bot.load_extension(path_replaced[:-3])
 
-@tasks.loop(seconds=10)
-async def loop():
-    print("Looping")
 
 
 logging.basicConfig(level=logging.DEBUG)

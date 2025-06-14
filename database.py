@@ -177,3 +177,34 @@ def db_put_qotd(ctx, question, scheduled_time):
         print(e)
         return False
 
+# Fetch all qotd that are scheduled before the current time in the database
+def db_get_unsent_qotds():
+    try:
+        current_time = time.time()
+        rows = cursor.execute("""SELECT question, user_id, channel_id
+                                 FROM qotds JOIN guild_qotdchannel ON qotds.guild_id = guild_qotdchannel.guild_id
+                                 WHERE sent = FALSE AND scheduled_time <= ?
+                              """, (current_time,)).fetchall()
+
+        # return the rows
+        return rows
+
+    except Exception as e:
+        print(e)
+        return None
+
+# Update all qotd scheduled before the current time to sent = true 
+def db_mark_qotds_as_sent():
+    try:
+        current_time = time.time()
+        cursor.execute("""UPDATE qotds SET sent = TRUE 
+                                 WHERE sent = FALSE AND scheduled_time <= ?
+                              """, (current_time,))
+
+        conn.commit()
+        return True
+
+    except Exception as e:
+        print(e)
+        return False 
+
