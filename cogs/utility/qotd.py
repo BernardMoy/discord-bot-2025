@@ -36,6 +36,7 @@ class Qotd(commands.Cog):
         scheduled_time = db_get_qotd_next_scheduled_time(ctx)
 
         # Add the question to the database
+        result = db_put_qotd(ctx, question, scheduled_time)
 
         # Reply the user
         embed = discord.Embed(

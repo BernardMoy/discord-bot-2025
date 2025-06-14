@@ -166,3 +166,14 @@ def db_get_qotd_next_scheduled_time(ctx):
         print(e)
         return None
 
+# Add a new qotd to the database
+def db_put_qotd(ctx, question, scheduled_time):
+    try:
+        cursor.execute("INSERT INTO qotds (question, user_id, guild_id, scheduled_time) VALUES (?, ?, ?, ?)",
+                       (question, ctx.author.id, ctx.guild.id, scheduled_time))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
