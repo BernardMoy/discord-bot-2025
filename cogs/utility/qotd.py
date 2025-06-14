@@ -9,6 +9,19 @@ class Qotd(commands.Cog):
     @commands.hybrid_command(name="qotd",
                              description="Ask a question of the day")
     async def qotd(self, ctx, *, question=""):
+        # Get the channel id that was set up for admin messaging
+        message_channel = db_get_qotd_channel(ctx)
+
+        # If the message channel does not exist, this command cannot be used
+        if not message_channel:
+            await ctx.send(embed=discord.Embed(
+                title="Qotd channel does not exist",
+                color=discord.Color(int("ff546e", 16)),
+                description="Set this up using `-setqotdchannel` in the desired channel."
+            ))
+            return
+
+        # If the question is empty, reject
         question = question.strip()
         if question == "":
             embed = discord.Embed(
@@ -19,8 +32,10 @@ class Qotd(commands.Cog):
             await ctx.send(embed=embed)
             return
 
-        # Add the question to the database, and get the expected scheduled time
+        # Get the expected scheduled time
         scheduled_time = db_get_qotd_next_scheduled_time(ctx)
+
+        # Add the question to the database
 
         # Reply the user
         embed = discord.Embed(

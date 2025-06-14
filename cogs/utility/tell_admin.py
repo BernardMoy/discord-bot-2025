@@ -14,9 +14,6 @@ class TellAdmin(commands.Cog):
         # Get the channel id that was set up for admin messaging
         message_channel = db_get_admin_messages_channel(ctx)
 
-        # trim the message
-        message = message.strip()
-
         # If the message channel does not exist, this command cannot be used
         if not message_channel:
             await ctx.send(embed=discord.Embed(
@@ -25,6 +22,9 @@ class TellAdmin(commands.Cog):
                 description="Set this up using `-setadminmessagechannel` in the desired channel."
             ))
             return
+
+        # trim the message
+        message = message.strip()
 
         # If message is none, reject it
         if not message:
@@ -42,12 +42,6 @@ class TellAdmin(commands.Cog):
             description=message,
             color=discord.Color(int("ffe354", 16))
         )
-
-        # Get the current time
-        # current_time = int(time.time())
-
-        # Add field including the time
-        # embed.add_field(name="Time", value=f"<t:{current_time}>", inline=False)
 
         # Add the author information in footer
         embed.set_footer(text=ctx.author.name, icon_url=ctx.author.display_avatar.url)  # User info in footer
