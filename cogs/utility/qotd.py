@@ -5,7 +5,7 @@ from database import *
 class Qotd(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.loop.start()
+        self.loop.start()  # Start qotd checking loop
 
     @commands.hybrid_command(name="qotd",
                              description="Ask a question of the day")
@@ -49,10 +49,27 @@ class Qotd(commands.Cog):
         await ctx.send(embed=embed)
 
     # Loop that executes every minute to check for new, unsent qotds
-    @tasks.loop(seconds=10)
+    @tasks.loop(minutes=1)
     async def loop(self):
-        print("Checking for new qotds...")
-        
+        # Print all qotds that are scheduled before the current time
+        rows = db_get_unsent_qotds()
+        print(f"Checking for new qotds... {len(rows)} new qotds detected")
+        print(rows)
+
+        for question, user_id, channel_id in rows:
+            embed = discord.Embed(title="Question of the day",
+                                  description=question,
+                                  color=discord.Color(int("7ee6d4", 16)))
+
+            embed.add_field(name="Asked by", value=f"<@{user_id}>")
+
+            # Get the channel
+            channel = await self.bot.fetch_channel(int(channel_id))
+            await channel.send(embed=embed)
+
+        # After sending, mark all qotds as sent
+        db_mark_qotds_as_sent()
+
 
 
 async def setup(bot):

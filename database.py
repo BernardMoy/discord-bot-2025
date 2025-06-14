@@ -181,6 +181,9 @@ def db_put_qotd(ctx, question, scheduled_time):
 def db_get_unsent_qotds():
     try:
         current_time = time.time()
+
+        # Inner join: Rows are excluded if the qotd channel is not set in a specific guild
+        # They will be included again once the channel is set again
         rows = cursor.execute("""SELECT question, user_id, channel_id
                                  FROM qotds JOIN guild_qotdchannel ON qotds.guild_id = guild_qotdchannel.guild_id
                                  WHERE sent = FALSE AND scheduled_time <= ?
@@ -191,7 +194,7 @@ def db_get_unsent_qotds():
 
     except Exception as e:
         print(e)
-        return None
+        return []
 
 # Update all qotd scheduled before the current time to sent = true 
 def db_mark_qotds_as_sent():
@@ -206,5 +209,5 @@ def db_mark_qotds_as_sent():
 
     except Exception as e:
         print(e)
-        return False 
+        return False
 
