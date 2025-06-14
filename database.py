@@ -8,7 +8,9 @@ def init_db():
     cursor.execute("""
                    CREATE TABLE IF NOT EXISTS user_wordle
                    (
-                       user_id INTEGER PRIMARY KEY, 
+                       wordle_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                       user_id INTEGER NOT NULL, 
+                       guild_id INTEGER NOT NULL, 
                        word TEXT NOT NULL
                     )
                    """)
@@ -18,24 +20,32 @@ def init_db():
                     channel_id INTEGER NOT NULL 
                     )
                    """)
+    cursor.execute("""
+                   CREATE TABLE IF NOT EXISTS guild_qotdchannel(
+                    guild_id INTEGER PRIMARY KEY, 
+                    channel_id INTEGER NOT NULL 
+                    )
+                   """)
 
 
+# Record user wordle wins in the database
 def db_put_wordle_win(ctx, word):
     # Insert the (uid, score) data to user wordle db
     try:
-        cursor.execute("INSERT INTO user_wordle VALUES (?, ?)",
-                       (ctx.author.id, word))
+        cursor.execute("INSERT INTO user_wordle VALUES (?, ?, ?)",
+                       (ctx.author.id, ctx.guild.id, word))
         conn.commit()
         return True
     except Exception as e:
         print(e)
         return False
 
-def db_get_wordle_leaderboard():
+# Get the wordle leaderboard of users in the same guild
+def db_get_wordle_leaderboard(ctx):
     # Query the (user, number of wins) pairs from the user wordle db
     # Sorted in descending order of wins
     try:
-        rows = cursor.execute("""SELECT user_id, COUNT(*) AS count FROM user_wordle ORDER BY COUNT DESC""").fetchall()
+        rows = cursor.execute("""SELECT user_id, COUNT(*) AS count FROM user_wordle WHERE guild_id = ? ORDER BY COUNT DESC""", (ctx.guild.id,)).fetchall()
         return rows
 
     except Exception as e:

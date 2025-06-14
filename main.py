@@ -65,7 +65,7 @@ async def main():
     await load()
     await loop.start()
 
-    # Start the bot here. Do not code below this line 
+    # Start the bot here. Do not code below this line
     await bot.start(token)
 
 asyncio.run(main())
