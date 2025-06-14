@@ -36,6 +36,31 @@ class Admin(commands.Cog):
                 description="Users can no longer use `-telladmin` until another channel is set."
             ))
 
+    # Set the qotd message channel
+    @commands.command(description = "Set the current channel to be the qotd message channel")
+    @commands.has_permissions(administrator=True)
+    async def setqotdchannel(self, ctx):
+        result = db_set_qotd_channel(ctx)
+        if result:
+            await ctx.send(embed=discord.Embed(
+                title="QOTD channel set",
+                color=discord.Color(int("54ff6e", 16)),
+                description="Use `-qotd [question]` to ask QOTDs, which will appear in this channel."
+            ))
+
+    # Remove the qotd message channel
+    @commands.command(description = "Remove the qotd message channel of the server")
+    @commands.has_permissions(administrator=True)
+    async def removeqotdchannel(self, ctx):
+        result = db_remove_qotd_channel(ctx)
+        if result:
+            await ctx.send(embed=discord.Embed(
+                title="QOTD channel removed",
+                color=discord.Color(int("ffcc54", 16)),
+                description="Users can no longer use `-qotd` until another channel is set."
+            ))
+
+
 
     @admin.error
     async def admin_error(self, ctx, error):
