@@ -32,7 +32,7 @@ def init_db():
 def db_put_wordle_win(ctx, word):
     # Insert the (uid, score) data to user wordle db
     try:
-        cursor.execute("INSERT INTO user_wordle VALUES (?, ?, ?)",
+        cursor.execute("INSERT INTO user_wordle (user_id, guild_id, word) VALUES (?, ?, ?)",
                        (ctx.author.id, ctx.guild.id, word))
         conn.commit()
         return True

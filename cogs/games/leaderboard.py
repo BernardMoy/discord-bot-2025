@@ -4,6 +4,10 @@ from database import *
 
 # Generate a leaderboard from the SQL query result
 def generate_leaderboard(rows):
+    # Check if the table is empty
+    if len(rows) == 1 and rows[0] == (None, 0):
+        return "There are no players in this server yet! "
+
     leaderboard_text = ""
     for i in range(len(rows)):
         user_id, count = rows[i]

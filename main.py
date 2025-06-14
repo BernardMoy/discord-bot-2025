@@ -63,7 +63,6 @@ async def loop():
 logging.basicConfig(level=logging.DEBUG)
 async def main():
     await load()
-    await loop.start()
 
     # Start the bot here. Do not code below this line
     await bot.start(token)
