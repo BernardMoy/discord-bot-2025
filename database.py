@@ -147,19 +147,20 @@ def db_get_qotd_channel(ctx):
 def db_get_qotd_next_scheduled_time(ctx):
     guild_id = ctx.guild.id
     try:
-        # Get the time of the latest unsent message
+        # Get the time of the latest unsent qotd from the same guild
         latest_time = cursor.execute("""
             SELECT COALESCE((
                 SELECT scheduled_time FROM qotds 
                 WHERE guild_id = ? AND sent = FALSE 
                 ORDER BY scheduled_time DESC LIMIT 1
             ), 0)
-        """, (guild_id,)).fetchone()
+        """, (guild_id,)).fetchone()[0]
 
         current_time = int(time.time())
 
-        # Return the maximum of (current_time, latest_time)
-        return max(current_time, latest_time)
+        # Return the maximum of (current_time, latest_time+24h)
+        # As questions must be at least 24 hours apart
+        return max(current_time, latest_time+86400)
 
     except Exception as e:
         print(e)

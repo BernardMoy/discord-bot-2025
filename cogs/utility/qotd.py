@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from database import *
 
 class Qotd(commands.Cog):
     def __init__(self, bot):
@@ -19,12 +20,13 @@ class Qotd(commands.Cog):
             return
 
         # Add the question to the database, and get the expected scheduled time
+        scheduled_time = db_get_qotd_next_scheduled_time(ctx)
 
         # Reply the user
         embed = discord.Embed(
             title="Question submitted!",
             color=discord.Color(int("54ff6e", 16)),
-            description=f"Your question is scheduled on "
+            description=f"Your question is scheduled on <t:{scheduled_time}>",
         )
         embed.set_footer(text="It may take up to a minute for the question to show up")
         await ctx.send(embed=embed)
