@@ -2,6 +2,7 @@ from collections import defaultdict
 
 import discord
 from discord.ext import commands
+import os
 
 # Organise collection of commands into this class
 class Basics(commands.Cog):
@@ -11,6 +12,14 @@ class Basics(commands.Cog):
     @commands.hybrid_command(name = "ping", description = "Ping the bot", with_app_command=True)
     async def ping(self, ctx):
         await ctx.send(f"{ctx.author.mention} Pong! {self.bot.latency * 1000:.2f}ms")
+
+    @commands.hybrid_command(name = "invite", description = "Get the invite link of the bot", with_app_command=True)
+    async def invite(self, ctx):
+        await ctx.send(embed = discord.Embed(
+            title = "Bot invite link",
+            description = f"[here]({os.getenv('INVITE_LINK')})",
+            colour = discord.Color(int("42b6f5", 16))
+        ))
 
     @commands.hybrid_command(name="dm", description="Send DM to user", with_app_command=True)
     async def dm(self, ctx, *, msg = ""):  # msg refers to the message (Parameters) after the command / * refers to single string afterwards
