@@ -35,6 +35,13 @@ class TellAdmin(commands.Cog):
             ]
         )
 
+        # Callback function when the user interacts with the dropdown menu
+        async def server_select_callback(interaction):
+            selected_value = select.values[0]
+            await interaction.response.send_message(selected_value)
+
+        # Set callback and send the view to the user
+        select.callback = server_select_callback
         view = View()
         view.add_item(select)
         await ctx.send("Which server do you want to send this message to? Your message will be sent to a channel that admins of that server have set up.",
