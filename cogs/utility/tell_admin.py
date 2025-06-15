@@ -12,10 +12,18 @@ class TellAdmin(commands.Cog):
     @commands.hybrid_command(name="telladmin",
                         description="Tell admins a message via bot DM. Your message will not be shown to others.")
     async def telladmin(self, ctx, *, message=""):
-        # Get the current guild
-        current_guild = ctx.guild
+        # If message is none, reject it
+        message = message.strip()
+        if not message:
+            await ctx.send(embed=discord.Embed(
+                title="Message cannot be empty",
+                color=discord.Color(int("ff546e", 16)),
+                description="Usage: `-telladmin [message]`"
+            ))
+            return
 
         # If the current guild is not None, redirect the user to use this command via DM
+        current_guild = ctx.guild
         if current_guild is not None:
             await ctx.send(embed=discord.Embed(
                 title="Please use this command in DM",
@@ -37,8 +45,40 @@ class TellAdmin(commands.Cog):
 
         # Callback function when the user interacts with the dropdown menu
         async def server_select_callback(interaction):
-            selected_value = select.values[0]
-            await interaction.response.send_message(selected_value)
+            # Fetch the selected guild id
+            selected_guild_id = select.values[0]
+
+            # Get the admin channel given the guild id
+            message_channel = db_get_admin_messages_channel(selected_guild_id)
+
+            # If the message channel does not exist, this command cannot be used
+            if not message_channel:
+                embed_error=discord.Embed(
+                    title="Admin message channel not exist",
+                    color=discord.Color(int("ff546e", 16)),
+                    description="Set this up using `-setadminmessagechannel` in the desired channel."
+                )
+                await interaction.response.send_message(embed=embed_error)
+                return
+
+            # Else, send the message in the channel
+            channel = self.bot.get_channel(message_channel)
+            embed = discord.Embed(
+                title="New Message",
+                description=message,
+                color=discord.Color(int("ffe354", 16))
+            )
+
+            # Add the author information in footer
+            embed.set_footer(text=ctx.author.name, icon_url=ctx.author.display_avatar.url)  # User info in footer
+            await channel.send(embed=embed)
+
+            # Reply user successful
+            await interaction.response.send_message(embed = discord.Embed(
+                title="Message sent to admins",
+                description=message,
+                color=discord.Color(int("ffe354", 16))
+            ))
 
         # Set callback and send the view to the user
         select.callback = server_select_callback
@@ -47,57 +87,6 @@ class TellAdmin(commands.Cog):
         await ctx.send("Which server do you want to send this message to? Your message will be sent to a channel that admins of that server have set up.",
                        view = view)
 
-        # Get the channel id that was set up for admin messaging
-        message_channel = db_get_admin_messages_channel(current_guild.id)
-
-        # If the message channel does not exist, this command cannot be used
-        if not message_channel:
-            await ctx.send(embed=discord.Embed(
-                title="Admin message channel not exist",
-                color=discord.Color(int("ff546e", 16)),
-                description="Set this up using `-setadminmessagechannel` in the desired channel."
-            ))
-            return
-
-        # trim the message
-        message = message.strip()
-
-        # If message is none, reject it
-        if not message:
-            await ctx.send(embed=discord.Embed(
-                title="Message cannot be empty",
-                color=discord.Color(int("ff546e", 16)),
-                description="Usage: `-telladmin [message]`"
-            ))
-            return
-
-        # Send the user's message in the message channel
-        channel = self.bot.get_channel(message_channel)
-        embed = discord.Embed(
-            title="New Message",
-            description=message,
-            color=discord.Color(int("ffe354", 16))
-        )
-
-        # Add the author information in footer
-        embed.set_footer(text=ctx.author.name, icon_url=ctx.author.display_avatar.url)  # User info in footer
-        await channel.send(embed=embed)
-
-        # If the user is using slash command, reply them
-        # Else DM them
-        if ctx.interaction is not None:  # Check if user is using SLASH COMMAND (APP COMMANDS)
-            await ctx.reply("Message sent!", ephemeral=True)
-
-        else:
-            # Afterwards, delete the user message
-            await ctx.message.delete()
-
-            # Send dm
-            await ctx.author.send(embed=discord.Embed(
-                title="Message sent to admins",
-                description=message,
-                color=discord.Color(int("ffe354", 16))
-            ))
 
 async def setup(bot):
     await bot.add_cog(TellAdmin(bot))
