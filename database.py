@@ -11,7 +11,6 @@ def init_db():
                    (
                        wordle_id INTEGER PRIMARY KEY AUTOINCREMENT,
                        user_id INTEGER NOT NULL, 
-                       guild_id INTEGER NOT NULL, 
                        word TEXT NOT NULL
                     )
                    """)
@@ -43,20 +42,31 @@ def init_db():
 def db_put_wordle_win(ctx, word):
     # Insert the (uid, score) data to user wordle db
     try:
-        cursor.execute("INSERT INTO user_wordle (user_id, guild_id, word) VALUES (?, ?, ?)",
-                       (ctx.author.id, ctx.guild.id, word))
+        cursor.execute("INSERT INTO user_wordle (user_id, word) VALUES (?,?)",
+                       (ctx.author.id, word))
         conn.commit()
         return True
     except Exception as e:
         print(f"Database error: {e}")
         return False
 
-# Get the wordle leaderboard of users in the same guild
+# Get the wordle leaderboard of users in the same guild, sorted in descending order of wins
 def db_get_wordle_leaderboard(ctx):
-    # Query the (user, number of wins) pairs from the user wordle db
-    # Sorted in descending order of wins
     try:
-        rows = cursor.execute("""SELECT user_id, COUNT(*) AS count FROM user_wordle WHERE guild_id = ? ORDER BY COUNT DESC""", (ctx.guild.id,)).fetchall()
+        # Get a list of user ids in ctx.guild to be supplied to the query
+        guild_users = [int(m.id) for m in ctx.guild.members]
+        # If the guild has no users, return empty rows
+        if not guild_users:
+            return []
+
+        placeholders = ['?']*len(guild_users)
+        placeholders = ','.join(placeholders)
+        rows = cursor.execute(f"""SELECT user_id, COUNT(*) AS count 
+                                        FROM user_wordle 
+                                        WHERE user_id IN ({placeholders})
+                                        GROUP BY user_id 
+                                        ORDER BY count DESC""",
+                              guild_users).fetchall()
         return rows
 
     except Exception as e:
