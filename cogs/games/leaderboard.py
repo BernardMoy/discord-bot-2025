@@ -33,7 +33,7 @@ class Leaderboard(commands.Cog):
     # Show the leaderboard of different games
     # Of the table user_<game> in the sql schema
     @commands.guild_only()
-    @commands.command(description = "Show the leaderboard of different games")
+    @commands.hybrid_command(name = "leaderboard", description = "Show the leaderboard of different games", with_app_command=True)
     async def leaderboard(self, ctx, category=""):
         if category == '':
             embed = discord.Embed(

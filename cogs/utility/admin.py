@@ -7,14 +7,14 @@ class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(description = "Check if the current user is an admin")
+    @commands.hybrid_command(name = "admin", description = "Check if the current user is an admin", with_app_command=True)
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def admin(self, ctx):
         await ctx.send(f"{ctx.author.mention} is an admin.")
 
     # Set the admin message channel
-    @commands.command(description = "Set the current channel to be the admin message channel")
+    @commands.hybrid_command(name = "setadminmessagechannel", description = "Set the current channel to be the admin message channel", with_app_command=True)
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def setadminmessagechannel(self, ctx):
@@ -27,7 +27,7 @@ class Admin(commands.Cog):
             ))
 
     # Remove the admin message channel
-    @commands.command(description = "Remove the admin message channel of the server")
+    @commands.hybrid_command(name = "removeadminmessagechannel", description = "Remove the admin message channel of the server", with_app_command=True)
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def removeadminmessagechannel(self, ctx):
@@ -40,7 +40,7 @@ class Admin(commands.Cog):
             ))
 
     # Set the qotd message channel
-    @commands.command(description = "Set the current channel to be the qotd message channel")
+    @commands.hybrid_command(name = "setqotdchannel", description = "Set the current channel to be the qotd message channel", with_app_command=True)
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def setqotdchannel(self, ctx):
@@ -53,7 +53,7 @@ class Admin(commands.Cog):
             ))
 
     # Remove the qotd message channel
-    @commands.command(description = "Remove the qotd message channel of the server")
+    @commands.hybrid_command(name = "removeqotdchannel", description = "Remove the qotd message channel of the server", with_app_command=True)
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def removeqotdchannel(self, ctx):
