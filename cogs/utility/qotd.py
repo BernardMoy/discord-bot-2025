@@ -5,7 +5,11 @@ from database import *
 class Qotd(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.loop.start()  # Start qotd checking loop
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        # Start the qotd checking loop when on ready
+        self.loop.start()
 
     @commands.hybrid_command(name="qotd",
                              description="Ask a question of the day")
