@@ -48,7 +48,7 @@ def db_put_wordle_win(ctx, word):
         conn.commit()
         return True
     except Exception as e:
-        print(e)
+        print(f"Database error: {e}")
         return False
 
 # Get the wordle leaderboard of users in the same guild
@@ -60,7 +60,7 @@ def db_get_wordle_leaderboard(ctx):
         return rows
 
     except Exception as e:
-        print(e)
+        print(f"Database error: {e}")
         return None
 
 # Set the admin message channel, or update it if already exists
@@ -77,7 +77,7 @@ def db_set_admin_messages_channel(ctx):
         return True
 
     except Exception as e:
-        print(e)
+        print(f"Database error: {e}")
         return False
 
 # Remove the admin message channel
@@ -90,7 +90,7 @@ def db_remove_admin_messages_channel(ctx):
         return True
 
     except Exception as e:
-        print(e)
+        print(f"Database error: {e}")
         return False
 
 # Get the admin message channel id, or None if it does not exist
@@ -100,7 +100,7 @@ def db_get_admin_messages_channel(ctx):
         rows = cursor.execute("""SELECT channel_id FROM guild_adminchannel WHERE guild_id = ?""", (guild_id,)).fetchall()
         return rows[0][0]
     except Exception as e:
-        print(e)
+        print(f"Database error: {e}")
         return None
 
 # Set the qotd message channel, or update it if already exists
@@ -117,7 +117,7 @@ def db_set_qotd_channel(ctx):
         return True
 
     except Exception as e:
-        print(e)
+        print(f"Database error: {e}")
         return False
 
 # Remove the qotd message channel
@@ -130,7 +130,7 @@ def db_remove_qotd_channel(ctx):
         return True
 
     except Exception as e:
-        print(e)
+        print(f"Database error: {e}")
         return False
 
 # Get the qotd message channel id, or None if it does not exist
@@ -140,18 +140,18 @@ def db_get_qotd_channel(ctx):
         rows = cursor.execute("""SELECT channel_id FROM guild_qotdchannel WHERE guild_id = ?""", (guild_id,)).fetchall()
         return rows[0][0]
     except Exception as e:
-        print(e)
+        print(f"Database error: {e}")
         return None
 
 # Get the next qotd scheduled time of the current guild
 def db_get_qotd_next_scheduled_time(ctx):
     guild_id = ctx.guild.id
     try:
-        # Get the time of the latest unsent qotd from the same guild
+        # Get the time of the latest qotd (sent or unsent) from the same guild
         latest_time = cursor.execute("""
             SELECT COALESCE((
                 SELECT scheduled_time FROM qotds 
-                WHERE guild_id = ? AND sent = FALSE 
+                WHERE guild_id = ?
                 ORDER BY scheduled_time DESC LIMIT 1
             ), 0)
         """, (guild_id,)).fetchone()[0]
@@ -163,7 +163,7 @@ def db_get_qotd_next_scheduled_time(ctx):
         return max(current_time, latest_time+86400)
 
     except Exception as e:
-        print(e)
+        print(f"Database error: {e}")
         return None
 
 # Add a new qotd to the database
@@ -174,7 +174,7 @@ def db_put_qotd(ctx, question, scheduled_time):
         conn.commit()
         return True
     except Exception as e:
-        print(e)
+        print(f"Database error: {e}")
         return False
 
 # Fetch all qotd that are scheduled before the current time in the database
@@ -193,21 +193,24 @@ def db_get_unsent_qotds():
         return rows
 
     except Exception as e:
-        print(e)
-        return []
+        print(f"Database error: {e}")
+        return None
 
 # Update all qotd scheduled before the current time to sent = true 
 def db_mark_qotds_as_sent():
     try:
         current_time = time.time()
-        cursor.execute("""UPDATE qotds SET sent = TRUE 
-                                 WHERE sent = FALSE AND scheduled_time <= ?
-                              """, (current_time,))
+        cursor.execute("""UPDATE qotds 
+                            SET sent = TRUE 
+                            WHERE qotd_id in (SELECT qotd_id
+                                 FROM qotds JOIN guild_qotdchannel ON qotds.guild_id = guild_qotdchannel.guild_id
+                                 WHERE sent = FALSE AND scheduled_time <= ?)
+                            """, (current_time,))
 
         conn.commit()
         return True
 
     except Exception as e:
-        print(e)
+        print(f"Database error: {e}")
         return False
 
