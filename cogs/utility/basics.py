@@ -65,6 +65,9 @@ class Basics(commands.Cog):
         )
 
         for key, value in commands_dict.items():
+            # Sort the values
+            value.sort()
+
             text = ""
             for name, description in value:
                 text += f"`-{name}`: {description}\n"

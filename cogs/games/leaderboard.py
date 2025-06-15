@@ -32,6 +32,7 @@ class Leaderboard(commands.Cog):
 
     # Show the leaderboard of different games
     # Of the table user_<game> in the sql schema
+    @commands.guild_only()
     @commands.command(description = "Show the leaderboard of different games")
     async def leaderboard(self, ctx, category=""):
         if category == '':

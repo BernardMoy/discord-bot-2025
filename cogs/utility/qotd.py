@@ -11,6 +11,7 @@ class Qotd(commands.Cog):
         # Start the qotd checking loop when on ready
         self.loop.start()
 
+    @commands.guild_only()
     @commands.hybrid_command(name="qotd",
                              description="Ask a question of the day")
     async def qotd(self, ctx, *, question=""):

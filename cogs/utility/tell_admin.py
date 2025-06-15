@@ -9,6 +9,7 @@ class TellAdmin(commands.Cog):
         self.bot = bot
 
     # Tell admin messages to the channel that was set up
+    @commands.dm_only()
     @commands.hybrid_command(name="telladmin",
                         description="Tell admins a message via bot DM. Your message will not be shown to others.")
     async def telladmin(self, ctx, *, message=""):
@@ -19,16 +20,6 @@ class TellAdmin(commands.Cog):
                 title="Message cannot be empty",
                 color=discord.Color(int("ff546e", 16)),
                 description="Usage: `-telladmin [message]`"
-            ))
-            return
-
-        # If the current guild is not None, redirect the user to use this command via DM
-        current_guild = ctx.guild
-        if current_guild is not None:
-            await ctx.send(embed=discord.Embed(
-                title="Please use this command in DM",
-                color=discord.Color(int("ff546e", 16)),
-                description="Select the server from using `-telladmin` in DM."
             ))
             return
 
