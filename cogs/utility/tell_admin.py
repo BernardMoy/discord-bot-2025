@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands
+from discord.ui import Select, View
+
 from database import *
-import time
 
 class TellAdmin(commands.Cog):
     def __init__(self, bot):
@@ -9,10 +10,38 @@ class TellAdmin(commands.Cog):
 
     # Tell admin messages to the channel that was set up
     @commands.hybrid_command(name="telladmin",
-                        description="Tell admins a message. Your message will not be shown to others.")
+                        description="Tell admins a message via bot DM. Your message will not be shown to others.")
     async def telladmin(self, ctx, *, message=""):
+        # Get the current guild
+        current_guild = ctx.guild
+
+        # If the current guild is not None, redirect the user to use this command via DM
+        if current_guild is not None:
+            await ctx.send(embed=discord.Embed(
+                title="Please use this command in DM",
+                color=discord.Color(int("ff546e", 16)),
+                description="Select the server from using `-telladmin` in DM."
+            ))
+            return
+
+        # Get a list of mutual guilds that the current member is also in
+        mutual_guilds = [g for g in self.bot.guilds if g.get_member(ctx.author.id)]
+
+        # Ask the user what server they want to send this to
+        select = Select(
+            placeholder="Select a server...",
+            options = [
+                discord.SelectOption(label = g.name, value = g.id) for g in mutual_guilds
+            ]
+        )
+
+        view = View()
+        view.add_item(select)
+        await ctx.send("Which server do you want to send this message to? Your message will be sent to a channel that admins of that server have set up.",
+                       view = view)
+
         # Get the channel id that was set up for admin messaging
-        message_channel = db_get_admin_messages_channel(ctx)
+        message_channel = db_get_admin_messages_channel(current_guild.id)
 
         # If the message channel does not exist, this command cannot be used
         if not message_channel:
