@@ -96,6 +96,19 @@ class Admin(commands.Cog):
         view.add_item(select)
         await ctx.send("Select a ping role for QOTD", view = view )
 
+    # Remove the qotd ping role
+    @commands.hybrid_command(name = "removeqotdpingrole", description = "Remove the qotd ping role", with_app_command=True)
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
+    async def removeqotdpingrole(self, ctx):
+        result = db_remove_qotd_ping_role(ctx)
+        if result:
+            await ctx.send(embed=discord.Embed(
+                title="QOTD ping role removed",
+                color=discord.Color(int("ffcc54", 16)),
+                description="No users will be pinged for new questions."
+            ))
+
 
 async def setup(bot):
     await bot.add_cog(Admin(bot))
