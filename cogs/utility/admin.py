@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+from discord.ui import Select, View
+
 from database import *
 
 class Admin(commands.Cog):
@@ -64,6 +66,34 @@ class Admin(commands.Cog):
                 color=discord.Color(int("ffcc54", 16)),
                 description="Users can no longer use `-qotd` until another channel is set."
             ))
+
+    # Set the qotd ping role
+    @commands.hybrid_command(name = "setqotdpingrole", description = "Set a role to ping for new qotds", with_app_command=True)
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
+    async def setqotdpingrole(self, ctx):
+        # Get a list of roles of the current guild
+        roles = ctx.guild.roles
+
+        select = Select(
+            placeholder="Select a role...",
+            options=[
+                discord.SelectOption(label = r.name, value=r.id) for r in roles
+            ]
+        )
+
+        async def role_select_callback(interaction):
+            selected_role_id = select.values[0]
+
+            print(selected_role_id)
+
+        select.callback = role_select_callback
+
+        # Create new view to send the select screen
+        view = View()
+        view.add_item(select)
+        await ctx.send("Select a ping role for QOTD", view = view )
+
 
 async def setup(bot):
     await bot.add_cog(Admin(bot))
