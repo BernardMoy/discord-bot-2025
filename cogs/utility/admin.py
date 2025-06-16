@@ -109,6 +109,23 @@ class Admin(commands.Cog):
                 description="No users will be pinged for new questions."
             ))
 
+    # Show a list of scheduled qotds
+    @commands.hybrid_command(name = "scheduledqotd", description = "Get all scheduled qotds", with_app_command=True)
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
+    async def scheduledqotd(self, ctx):
+        rows = db_get_scheduled_qotds(ctx)
+        content = "" if rows else "There are no scheduled qotds in this server."
+        for question, user_id, scheduled_time in rows:
+            content += question + "\n"
+            content += f"Sent by: <@{user_id}>\n"
+            content += f"Scheduled on: <t:{scheduled_time}>\n\n"
+
+        await ctx.send(embed=discord.Embed(
+            title="Scheduled QOTDs",
+            color=discord.Color(int("f5e342", 16)),
+            description=content
+        ))
 
 async def setup(bot):
     await bot.add_cog(Admin(bot))

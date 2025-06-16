@@ -162,7 +162,7 @@ def db_get_qotd_next_scheduled_time(ctx):
 
     # Return the maximum of (current_time, latest_time+24h)
     # As questions must be at least 24 hours apart
-    return max(current_time, latest_time+10)
+    return max(current_time, latest_time+86400)
 
 # Add a new qotd to the database
 @db_error_wrapper
@@ -192,6 +192,20 @@ def db_get_unsent_qotds():
     # return the rows
     return rows
 
+
+# Get all scheduled (Unsent) qotds that are either in the past or in the future
+@db_error_wrapper
+def db_get_scheduled_qotds(ctx):
+    guild_id = ctx.guild.id
+    rows = cursor.execute("""
+                          SELECT question, user_id, scheduled_time 
+                          FROM qotds 
+                          WHERE sent = FALSE AND guild_id = ?""",
+                          (guild_id,)
+                          ).fetchall()
+
+    # return the rows
+    return rows
 
 # Update all qotd scheduled before the current time to sent = true
 @db_error_wrapper
