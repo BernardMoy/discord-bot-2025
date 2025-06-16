@@ -61,7 +61,7 @@ class Qotd(commands.Cog):
         print(f"Checking for new qotds... {len(rows)} new qotds detected")
         print(rows)
 
-        for question, user_id, channel_id, count in rows:
+        for question, user_id, channel_id, role_id, count in rows:
             embed = discord.Embed(title=f"Question of the day - {count}",
                                   description=question,
                                   color=discord.Color(int("7ee6d4", 16)))
@@ -70,7 +70,12 @@ class Qotd(commands.Cog):
 
             # Get the channel
             channel = await self.bot.fetch_channel(int(channel_id))
-            await channel.send(embed=embed)
+
+            # Ping if there is a qotd ping role
+            if role_id:
+                await channel.send(f"<@&{role_id}>", embed=embed)
+            else:
+                await channel.send(embed = embed )
 
         # After sending, mark all qotds as sent
         db_mark_qotds_as_sent()

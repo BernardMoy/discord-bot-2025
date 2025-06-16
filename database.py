@@ -179,11 +179,13 @@ def db_get_unsent_qotds():
 
     # Inner join: Rows are excluded if the qotd channel is not set in a specific guild
     # They will be included again once the channel is set again
-    # Get the qotd question, uid, channel to send, and the qotd count
-    rows = cursor.execute("""SELECT question, user_id, channel_id, (SELECT COUNT(*) 
+    # Get the qotd question, uid, channel to send, qotd ping role, and the qotd count
+    # Left join is used to keep entries for missing qotd ping roles as they are optional
+    rows = cursor.execute("""SELECT question, user_id, channel_id, role_id, (SELECT COUNT(*) 
                                                                     FROM qotds q1 
                                                                     WHERE q1.guild_id = q.guild_id AND q1.scheduled_time <= q.scheduled_time)
                                  FROM qotds q JOIN guild_qotdchannel qc ON q.guild_id = qc.guild_id
+                                            LEFT JOIN guild_qotdpingrole qp ON q.guild_id = qp.guild_id
                                  WHERE sent = FALSE AND scheduled_time <= ?
                               """, (current_time,)).fetchall()
 
@@ -226,11 +228,3 @@ def db_remove_qotd_ping_role(ctx):
     cursor.execute("""DELETE FROM guild_qotdpingrole WHERE guild_id = ?""", (guild_id, ))
     conn.commit()
     return True
-
-# Get the qotd ping role id for the current guild or None
-@db_error_wrapper
-def db_get_qotd_ping_role(ctx):
-    guild_id = ctx.guild.id
-    rows = cursor.execute("""SELECT role_id FROM guild_qotdpingrole WHERE guild_id = ?""", (guild_id,)).fetchall()
-    return rows[0][0] if rows and rows[0] else None
-
