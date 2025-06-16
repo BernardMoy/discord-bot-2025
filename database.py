@@ -48,6 +48,12 @@ def init_db():
                     sent BOOLEAN DEFAULT FALSE
                     )
                    """)
+    cursor.execute("""
+                   CREATE TABLE IF NOT EXISTS guild_qotdpingrole(
+                    guild_id INTEGER PRIMARY KEY, 
+                    role_id INTEGER NOT NULL 
+                    )
+                   """)
 
 
 # Record user wordle wins in the database
@@ -198,4 +204,33 @@ def db_mark_qotds_as_sent():
 
     conn.commit()
     return True
+
+# Set the qotd ping role or update it if already exists
+@db_error_wrapper
+def db_set_qotd_ping_role(ctx, role_id):
+    # Get the guild and channel id
+    guild_id = ctx.guild.id
+
+    cursor.execute("""INSERT OR REPLACE INTO guild_qotdpingrole VALUES (?, ?)""", (guild_id, role_id))
+
+    conn.commit()
+    return True
+
+
+# Remove the qotd ping role
+@db_error_wrapper
+def db_remove_qotd_ping_role(ctx):
+    # Get the guild id
+    guild_id = ctx.guild.id
+
+    cursor.execute("""DELETE FROM guild_qotdpingrole WHERE guild_id = ?""", (guild_id, ))
+    conn.commit()
+    return True
+
+# Get the qotd ping role id for the current guild or None
+@db_error_wrapper
+def db_get_qotd_ping_role(ctx):
+    guild_id = ctx.guild.id
+    rows = cursor.execute("""SELECT role_id FROM guild_qotdpingrole WHERE guild_id = ?""", (guild_id,)).fetchall()
+    return rows[0][0] if rows and rows[0] else None
 

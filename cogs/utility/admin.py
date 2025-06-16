@@ -85,7 +85,9 @@ class Admin(commands.Cog):
         async def role_select_callback(interaction):
             selected_role_id = select.values[0]
 
-            print(selected_role_id)
+            # Update the role in database
+            db_set_qotd_ping_role(ctx, selected_role_id)
+            await interaction.response.send_message("Qotd ping role set!")
 
         select.callback = role_select_callback
 
