@@ -4,7 +4,18 @@ import time
 conn = sqlite3.connect("discordbot.db")
 cursor = conn.cursor()
 
+# Wrapper to handle the database errors
+def db_error_wrapper(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return None
+    return wrapper
+
 # Initialise the database by creating tables
+@db_error_wrapper
 def init_db():
     cursor.execute("""
                    CREATE TABLE IF NOT EXISTS user_wordle
@@ -39,16 +50,12 @@ def init_db():
 
 
 # Record user wordle wins in the database
+@db_error_wrapper
 def db_put_wordle_win(ctx, word):
     # Insert the (uid, score) data to user wordle db
-    try:
-        cursor.execute("INSERT INTO user_wordle (user_id, word) VALUES (?,?)",
+    cursor.execute("INSERT INTO user_wordle (user_id, word) VALUES (?,?)",
                        (ctx.author.id, word))
-        conn.commit()
-        return True
-    except Exception as e:
-        print(f"Database error: {e}")
-        return False
+    conn.commit()
 
 # Get the wordle leaderboard of users in the same guild, sorted in descending order of wins
 def db_get_wordle_leaderboard(ctx):
