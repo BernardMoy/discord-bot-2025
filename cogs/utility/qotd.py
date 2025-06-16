@@ -42,7 +42,7 @@ class Qotd(commands.Cog):
         scheduled_time = db_get_qotd_next_scheduled_time(ctx)
 
         # Add the question to the database
-        result = db_put_qotd(ctx, question, scheduled_time)
+        db_put_qotd(ctx, question, scheduled_time)
 
         # Reply the user
         embed = discord.Embed(
@@ -61,8 +61,8 @@ class Qotd(commands.Cog):
         print(f"Checking for new qotds... {len(rows)} new qotds detected")
         print(rows)
 
-        for question, user_id, channel_id in rows:
-            embed = discord.Embed(title="Question of the day",
+        for question, user_id, channel_id, count in rows:
+            embed = discord.Embed(title=f"Question of the day - {count}",
                                   description=question,
                                   color=discord.Color(int("7ee6d4", 16)))
 

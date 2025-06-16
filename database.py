@@ -10,7 +10,7 @@ def db_error_wrapper(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except sqlite3.Error as e:
+        except Exception as e:
             print(f"Database error: {e}")
             return None
     return wrapper
@@ -105,7 +105,7 @@ def db_remove_admin_messages_channel(ctx):
 @db_error_wrapper
 def db_get_admin_messages_channel(guild_id):
     rows = cursor.execute("""SELECT channel_id FROM guild_adminchannel WHERE guild_id = ?""", (guild_id,)).fetchall()
-    return rows[0][0]
+    return rows[0][0] if rows and rows[0] else None
 
 # Set the qotd message channel, or update it if already exists
 @db_error_wrapper
@@ -136,7 +136,7 @@ def db_remove_qotd_channel(ctx):
 def db_get_qotd_channel(ctx):
     guild_id = ctx.guild.id
     rows = cursor.execute("""SELECT channel_id FROM guild_qotdchannel WHERE guild_id = ?""", (guild_id,)).fetchall()
-    return rows[0][0]
+    return rows[0][0] if rows and rows[0] else None
 
 # Get the next qotd scheduled time of the current guild
 @db_error_wrapper
@@ -156,7 +156,7 @@ def db_get_qotd_next_scheduled_time(ctx):
 
     # Return the maximum of (current_time, latest_time+24h)
     # As questions must be at least 24 hours apart
-    return max(current_time, latest_time+86400)
+    return max(current_time, latest_time+10)
 
 # Add a new qotd to the database
 @db_error_wrapper
@@ -173,8 +173,11 @@ def db_get_unsent_qotds():
 
     # Inner join: Rows are excluded if the qotd channel is not set in a specific guild
     # They will be included again once the channel is set again
-    rows = cursor.execute("""SELECT question, user_id, channel_id
-                                 FROM qotds JOIN guild_qotdchannel ON qotds.guild_id = guild_qotdchannel.guild_id
+    # Get the qotd question, uid, channel to send, and the qotd count
+    rows = cursor.execute("""SELECT question, user_id, channel_id, (SELECT COUNT(*) 
+                                                                    FROM qotds q1 
+                                                                    WHERE q1.guild_id = q.guild_id AND q1.scheduled_time <= q.scheduled_time)
+                                 FROM qotds q JOIN guild_qotdchannel qc ON q.guild_id = qc.guild_id
                                  WHERE sent = FALSE AND scheduled_time <= ?
                               """, (current_time,)).fetchall()
 
