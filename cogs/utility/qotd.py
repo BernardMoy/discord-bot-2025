@@ -154,11 +154,11 @@ class Qotd(commands.Cog):
             ))
 
     # Show a list of scheduled qotds
-    @commands.hybrid_command(name="scheduledqotd", description="Get all scheduled qotds",
+    @commands.hybrid_command(name="scheduledqotds", description="Get all scheduled qotds",
                                          with_app_command=True)
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
-    async def scheduledqotd(self, ctx):
+    async def scheduledqotds(self, ctx):
         rows = db_get_scheduled_qotds(ctx)
         content = "" if rows else "There are no scheduled qotds in this server."
         for question, user_id, scheduled_time in rows:

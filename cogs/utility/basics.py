@@ -56,18 +56,44 @@ class Basics(commands.Cog):
     async def admin(self, ctx):
         await ctx.send(f"{ctx.author.mention} is an admin.")
 
+    # Given a check from a list of commands.checks, determine if it is related to has_permissions(administrator = True)
+    def is_admin_check(self, check):
+        if not hasattr(check, "__closure__") or not check.__closure__:
+            return False
+
+        for cell in check.__closure__:
+            try:
+                if isinstance(cell.cell_contents, dict):
+                    perms = cell.cell_contents
+                    if perms.get("administrator", False):
+                        return True
+            except Exception as e1:
+                continue
+        return False
+
+    # Return a list of available commands, classified and sorted
     @commands.hybrid_command(name="help", description="List all available commands", with_app_command=True)
     async def help(self, ctx):
         # Dict to store cogNames (Categories) : command Names
         commands_dict = defaultdict(list)
         for command in self.bot.commands:
-            commands_dict[command.cog_name].append((command.name, command.description))
+
+            # Check if the command has permissions restrictions (Assumed they are admin checks)
+            command_name = command.name
+            command_description = command.description
+
+            for check in command.checks:
+                if self.is_admin_check(check):
+                    command_description = '🔒 ' + command_description
+                    break
+
+            commands_dict[command.cog_name].append((command_name, command_description))
 
         # Iterate the dict to print the embed
         embed = discord.Embed(
             title="Welcome :)",
             colour=discord.Color(int("a8ccff", 16)),
-            description = "Command prefix: `-`"
+            description = "Command prefix: `-` \n Admin-only commands are indicated with 🔒 "
         )
 
         for key, value in commands_dict.items():
