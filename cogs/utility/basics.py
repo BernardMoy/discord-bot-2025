@@ -71,23 +71,22 @@ class Basics(commands.Cog):
                 continue
         return False
 
+    # Given a command object, determine if it is admin only
+    def is_command_admin_only(self, command):
+        for check in command.checks:
+            if self.is_admin_check(check):
+                return True
+        return False
+
     # Return a list of available commands, classified and sorted
     @commands.hybrid_command(name="help", description="List all available commands", with_app_command=True)
     async def help(self, ctx):
         # Dict to store cogNames (Categories) : command Names
         commands_dict = defaultdict(list)
+
         for command in self.bot.commands:
-
             # Check if the command has permissions restrictions (Assumed they are admin checks)
-            command_name = command.name
-            command_description = command.description
-
-            for check in command.checks:
-                if self.is_admin_check(check):
-                    command_description = '🔒 ' + command_description
-                    break
-
-            commands_dict[command.cog_name].append((command_name, command_description))
+            commands_dict[command.cog_name].append((command.name, command.description, self.is_command_admin_only(command)))
 
         # Iterate the dict to print the embed
         embed = discord.Embed(
@@ -97,12 +96,12 @@ class Basics(commands.Cog):
         )
 
         for key, value in commands_dict.items():
-            # Sort the values
-            value.sort()
+            # Sort the values to ensure regular commands come first
+            value.sort(key = lambda x: x[2])
 
             text = ""
-            for name, description in value:
-                text += f"`-{name}`: {description}\n"
+            for name, description, is_admin_only in value:
+                text += f"`-{name}`: {description}\n" if not is_admin_only else f"`-{name}` 🔒: {description}\n"
             embed.add_field(name=key, value=text, inline=False)
 
         # Add the bot name

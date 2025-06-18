@@ -29,7 +29,7 @@ def init_db():
     cursor.execute("""
                    CREATE TABLE IF NOT EXISTS guild_adminchannel(
                     guild_id INTEGER PRIMARY KEY, 
-                    channel_id INTEGER NOT NULL 
+                    channel_id INTEGER NOT NULL
                     )
                    """)
     cursor.execute("""
