@@ -8,7 +8,7 @@ class TellAdmin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # Tell admin messages to the channel that was set up
+    # Tell admin messages to the channel that was set up (Through DM)
     @commands.dm_only()
     @commands.hybrid_command(name="telladmin",
                         description="Tell admins a message via bot DM. Your message will not be shown to others.")
@@ -77,6 +77,36 @@ class TellAdmin(commands.Cog):
         view.add_item(select)
         await ctx.send("Which server do you want to send this message to? Your message will be sent to a channel that admins of that server have set up.",
                        view = view)
+
+    # Set the admin message channel
+    @commands.hybrid_command(name="setadminmessagechannel",
+                             description="Set the current channel to be the admin message channel",
+                             with_app_command=True)
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
+    async def setadminmessagechannel(self, ctx):
+        result = db_set_admin_messages_channel(ctx)
+        if result:
+            await ctx.send(embed=discord.Embed(
+                title="Admin message channel set",
+                color=discord.Color(int("54ff6e", 16)),
+                description="Use `-telladmin [message]` to tell messages to admins, which will appear in this channel."
+            ))
+
+
+    # Remove the admin message channel
+    @commands.hybrid_command(name="removeadminmessagechannel",
+                             description="Remove the admin message channel of the server", with_app_command=True)
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
+    async def removeadminmessagechannel(self, ctx):
+        result = db_remove_admin_messages_channel(ctx)
+        if result:
+            await ctx.send(embed=discord.Embed(
+                title="Admin message channel removed",
+                color=discord.Color(int("ffcc54", 16)),
+                description="Users can no longer use `-telladmin` until another channel is set."
+            ))
 
 
 async def setup(bot):

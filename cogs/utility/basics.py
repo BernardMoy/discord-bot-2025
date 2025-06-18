@@ -50,6 +50,12 @@ class Basics(commands.Cog):
 
         await ctx.reply(msg)  # Reply with the user message
 
+    @commands.hybrid_command(name = "admin", description = "Check if the current user is an admin", with_app_command=True)
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
+    async def admin(self, ctx):
+        await ctx.send(f"{ctx.author.mention} is an admin.")
+
     @commands.hybrid_command(name="help", description="List all available commands", with_app_command=True)
     async def help(self, ctx):
         # Dict to store cogNames (Categories) : command Names
