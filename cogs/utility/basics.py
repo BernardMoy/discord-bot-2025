@@ -78,26 +78,26 @@ class Basics(commands.Cog):
                 return True
         return False
 
-    # Return a list of available commands, classified and sorted
-    @commands.hybrid_command(name="help", description="List all available commands", with_app_command=True)
-    async def help(self, ctx):
+    # Function to return the help message
+    def get_help_message(self):
         # Dict to store cogNames (Categories) : command Names
         commands_dict = defaultdict(list)
 
         for command in self.bot.commands:
             # Check if the command has permissions restrictions (Assumed they are admin checks)
-            commands_dict[command.cog_name].append((command.name, command.description, self.is_command_admin_only(command)))
+            commands_dict[command.cog_name].append(
+                (command.name, command.description, self.is_command_admin_only(command)))
 
         # Iterate the dict to print the embed
         embed = discord.Embed(
             title="Welcome :)",
             colour=discord.Color(int("a8ccff", 16)),
-            description = "Command prefix: `-` \n Admin-only commands are indicated with 🔒 "
+            description="Command prefix: `-` \n Admin-only commands are indicated with 🔒 "
         )
 
         for key, value in commands_dict.items():
             # Sort the values to ensure regular commands come first
-            value.sort(key = lambda x: x[2])
+            value.sort(key=lambda x: x[2])
 
             text = ""
             for name, description, is_admin_only in value:
@@ -108,8 +108,22 @@ class Basics(commands.Cog):
         embed.set_author(name=self.bot.user.name,
                          icon_url=self.bot.user.avatar.url if self.bot.user.avatar is not None else "https://cdn.discordapp.com/embed/avatars/0.png")
 
+        return embed
+
+    # Return a list of available commands, classified and sorted
+    @commands.hybrid_command(name="help", description="List all available commands", with_app_command=True)
+    async def help(self, ctx):
+        embed = self.get_help_message()
         await ctx.send(embed=embed)
 
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author == self.bot.user:
+            return
+
+        if self.bot.user in message.mentions:
+            embed = self.get_help_message()
+            await message.channel.send(embed = embed)
 
 async def setup(bot):
     await bot.add_cog(Basics(bot))
