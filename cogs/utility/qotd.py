@@ -16,7 +16,7 @@ class Qotd(commands.Cog):
     @commands.hybrid_command(name="qotd", description="Ask a question of the day")
     async def qotd(self, ctx, *, question=""):
         # Get the channel id that was set up for admin messaging
-        message_channel = db.db_get_qotd_channel(ctx)
+        message_channel = db.get_qotd_channel(ctx)
 
         # If the message channel does not exist, this command cannot be used
         if not message_channel:
@@ -39,10 +39,10 @@ class Qotd(commands.Cog):
             return
 
         # Get the expected scheduled time
-        scheduled_time = db.db_get_qotd_next_scheduled_time(ctx)
+        scheduled_time = db.get_qotd_next_scheduled_time(ctx)
 
         # Add the question to the database
-        db.db_put_qotd(ctx, question, scheduled_time)
+        db.put_qotd(ctx, question, scheduled_time)
 
         # Reply the user
         embed = discord.Embed(
@@ -57,7 +57,7 @@ class Qotd(commands.Cog):
     @tasks.loop(minutes=1)
     async def loop(self):
         # Print all qotds that are scheduled before the current time
-        rows = db.db_get_unsent_qotds()
+        rows = db.get_unsent_qotds()
         print(f"Checking for new qotds... {len(rows)} new qotds detected")
         print(rows)
 
@@ -78,7 +78,7 @@ class Qotd(commands.Cog):
                 await channel.send(embed = embed )
 
         # After sending, mark all qotds as sent
-        db.db_mark_qotds_as_sent()
+        db.mark_qotds_as_sent()
 
     # Set the qotd message channel
     @commands.hybrid_command(name="setqotdchannel",
@@ -87,7 +87,7 @@ class Qotd(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def setqotdchannel(self, ctx):
-        result = db.db_set_qotd_channel(ctx)
+        result = db.set_qotd_channel(ctx)
         if result:
             await ctx.send(embed=discord.Embed(
                 title="QOTD channel set",
@@ -101,7 +101,7 @@ class Qotd(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def removeqotdchannel(self, ctx):
-        result = db.db_remove_qotd_channel(ctx)
+        result = db.remove_qotd_channel(ctx)
         if result:
             await ctx.send(embed=discord.Embed(
                 title="QOTD channel removed",
@@ -129,7 +129,7 @@ class Qotd(commands.Cog):
             selected_role_id = select.values[0]
 
             # Update the role in database
-            db.db_set_qotd_ping_role(ctx, selected_role_id)
+            db.set_qotd_ping_role(ctx, selected_role_id)
             await interaction.response.send_message("Qotd ping role set!")
 
         select.callback = role_select_callback
@@ -145,7 +145,7 @@ class Qotd(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def removeqotdpingrole(self, ctx):
-        result = db.db_remove_qotd_ping_role(ctx)
+        result = db.remove_qotd_ping_role(ctx)
         if result:
             await ctx.send(embed=discord.Embed(
                 title="QOTD ping role removed",
@@ -159,7 +159,7 @@ class Qotd(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def scheduledqotds(self, ctx):
-        rows = db.db_get_scheduled_qotds(ctx)
+        rows = db.get_scheduled_qotds(ctx)
         content = "" if rows else "There are no scheduled qotds in this server."
         for question, user_id, scheduled_time in rows:
             content += question + "\n"

@@ -68,7 +68,7 @@ class Database:
 
     # Record user wordle wins in the database
     @db_error_wrapper
-    def db_put_wordle_win(self, ctx, word):
+    def put_wordle_win(self, ctx, word):
         # Insert the (uid, score) data to user wordle db
         self.cursor.execute("INSERT INTO user_wordle (user_id, word) VALUES (?,?)",
                        (ctx.author.id, word))
@@ -76,7 +76,7 @@ class Database:
 
     # Get the wordle leaderboard of users in the same guild, sorted in descending order of wins
     @db_error_wrapper
-    def db_get_wordle_leaderboard(self, ctx):
+    def get_wordle_leaderboard(self, ctx):
         # Get a list of user ids in ctx.guild to be supplied to the query
         guild_users = [int(m.id) for m in ctx.guild.members]
 
@@ -96,7 +96,7 @@ class Database:
 
     # Set the admin message channel, or update it if already exists
     @db_error_wrapper
-    def db_set_admin_messages_channel(self, ctx):
+    def set_admin_messages_channel(self, ctx):
         # Get the guild and channel id
         guild_id = ctx.guild.id
         channel_id = ctx.channel.id
@@ -108,7 +108,7 @@ class Database:
 
     # Remove the admin message channel
     @db_error_wrapper
-    def db_remove_admin_messages_channel(self, ctx):
+    def remove_admin_messages_channel(self, ctx):
         # Get the guild and channel id
         guild_id = ctx.guild.id
 
@@ -120,7 +120,7 @@ class Database:
 
     # Get the admin message channel id given a GUILD ID, or None if it does not exist
     @db_error_wrapper
-    def db_get_admin_messages_channel(self, guild_id):
+    def get_admin_messages_channel(self, guild_id):
         rows = self.cursor.execute("""SELECT channel_id
                                  FROM guild_adminchannel
                                  WHERE guild_id = ?""", (guild_id,)).fetchall()
@@ -128,7 +128,7 @@ class Database:
 
     # Set the qotd message channel, or update it if already exists
     @db_error_wrapper
-    def db_set_qotd_channel(self, ctx):
+    def set_qotd_channel(self, ctx):
         # Get the guild and channel id
         guild_id = ctx.guild.id
         channel_id = ctx.channel.id
@@ -141,7 +141,7 @@ class Database:
 
     # Remove the qotd message channel
     @db_error_wrapper
-    def db_remove_qotd_channel(self, ctx):
+    def remove_qotd_channel(self, ctx):
         # Get the guild and channel id
         guild_id = ctx.guild.id
 
@@ -153,7 +153,7 @@ class Database:
 
     # Get the qotd message channel id, or None if it does not exist
     @db_error_wrapper
-    def db_get_qotd_channel(self, ctx):
+    def get_qotd_channel(self, ctx):
         guild_id = ctx.guild.id
         rows = self.cursor.execute("""SELECT channel_id
                                  FROM guild_qotdchannel
@@ -162,7 +162,7 @@ class Database:
 
     # Get the next qotd scheduled time of the current guild
     @db_error_wrapper
-    def db_get_qotd_next_scheduled_time(self, ctx):
+    def get_qotd_next_scheduled_time(self, ctx):
         guild_id = ctx.guild.id
 
         # Get the time of the latest qotd (sent or unsent) from the same guild
@@ -181,7 +181,7 @@ class Database:
 
     # Add a new qotd to the database
     @db_error_wrapper
-    def db_put_qotd(self, ctx, question, scheduled_time):
+    def put_qotd(self, ctx, question, scheduled_time):
         self.cursor.execute("INSERT INTO qotds (question, user_id, guild_id, scheduled_time) VALUES (?, ?, ?, ?)",
                        (question, ctx.author.id, ctx.guild.id, scheduled_time))
         self.conn.commit()
@@ -189,7 +189,7 @@ class Database:
 
     # Fetch all qotd that are scheduled before the current time in the database
     @db_error_wrapper
-    def db_get_unsent_qotds(self):
+    def get_unsent_qotds(self):
         current_time = time.time()
 
         # Inner join: Rows are excluded if the qotd channel is not set in a specific guild
@@ -216,7 +216,7 @@ class Database:
 
     # Get all scheduled (Unsent) qotds that are either in the past or in the future
     @db_error_wrapper
-    def db_get_scheduled_qotds(self, ctx):
+    def get_scheduled_qotds(self, ctx):
         guild_id = ctx.guild.id
         rows = self.cursor.execute("""
                               SELECT question, user_id, scheduled_time
@@ -231,7 +231,7 @@ class Database:
 
     # Update all qotd scheduled before the current time to sent = true
     @db_error_wrapper
-    def db_mark_qotds_as_sent(self):
+    def mark_qotds_as_sent(self):
         current_time = time.time()
         self.cursor.execute("""UPDATE qotds
                           SET sent = TRUE
@@ -247,7 +247,7 @@ class Database:
 
     # Set the qotd ping role or update it if already exists
     @db_error_wrapper
-    def db_set_qotd_ping_role(self, ctx, role_id):
+    def set_qotd_ping_role(self, ctx, role_id):
         # Get the guild and channel id
         guild_id = ctx.guild.id
 
@@ -258,7 +258,7 @@ class Database:
 
     # Remove the qotd ping role
     @db_error_wrapper
-    def db_remove_qotd_ping_role(self, ctx):
+    def remove_qotd_ping_role(self, ctx):
         # Get the guild id
         guild_id = ctx.guild.id
 

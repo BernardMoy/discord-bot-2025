@@ -45,7 +45,7 @@ class Leaderboard(commands.Cog):
             return
 
         if category == "wordle":
-            rows = db.db_get_wordle_leaderboard(ctx)
+            rows = db.get_wordle_leaderboard(ctx)
             embed = discord.Embed(
                 title=f"Wordle leaderboard",
                 description=generate_leaderboard(rows),

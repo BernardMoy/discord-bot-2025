@@ -135,7 +135,7 @@ class Wordle(commands.Cog):
             ))
 
             # Add to database
-            db.db_put_wordle_win(ctx, self.current_wordle_word)
+            db.put_wordle_win(ctx, self.current_wordle_word)
 
             # Reset the wordle for the next round
             self.reset_wordle()
