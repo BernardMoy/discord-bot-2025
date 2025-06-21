@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import random
 from data.wordle_list import wordle_list
-from database import *
+from main import db
 
 
 # Function to return a random, 5 letter word
@@ -135,7 +135,7 @@ class Wordle(commands.Cog):
             ))
 
             # Add to database
-            db_put_wordle_win(ctx, self.current_wordle_word)
+            db.db_put_wordle_win(ctx, self.current_wordle_word)
 
             # Reset the wordle for the next round
             self.reset_wordle()

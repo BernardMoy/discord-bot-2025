@@ -1,8 +1,7 @@
 import discord
 from discord.ext import commands
 from discord.ui import Select, View
-
-from database import *
+from main import db
 
 class TellAdmin(commands.Cog):
     def __init__(self, bot):
@@ -40,7 +39,7 @@ class TellAdmin(commands.Cog):
             selected_guild_id = select.values[0]
 
             # Get the admin channel given the guild id
-            message_channel = db_get_admin_messages_channel(selected_guild_id)
+            message_channel = db.db_get_admin_messages_channel(selected_guild_id)
 
             # If the message channel does not exist, this command cannot be used
             if not message_channel:
@@ -85,7 +84,7 @@ class TellAdmin(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def setadminmessagechannel(self, ctx):
-        result = db_set_admin_messages_channel(ctx)
+        result = db.db_set_admin_messages_channel(ctx)
         if result:
             await ctx.send(embed=discord.Embed(
                 title="Admin message channel set",
@@ -100,7 +99,7 @@ class TellAdmin(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def removeadminmessagechannel(self, ctx):
-        result = db_remove_admin_messages_channel(ctx)
+        result = db.db_remove_admin_messages_channel(ctx)
         if result:
             await ctx.send(embed=discord.Embed(
                 title="Admin message channel removed",

@@ -22,11 +22,11 @@ bot = commands.Bot(command_prefix='-', intents=intents)
 # Remove the default help command
 bot.remove_command('help')
 
+# Initialise the database
+db = Database(testing=False)
+
 @bot.event
 async def on_ready():
-    # Connect to sqlite database
-    init_db()
-
     # Sync bot tree for slash commands
     await bot.tree.sync()
 
@@ -63,4 +63,6 @@ async def main():
     # Start the bot here. Do not code below this line
     await bot.start(token)
 
-asyncio.run(main())
+# Avoid running it when doing imports from this file
+if __name__ == "__main__":   # Run directly, not by imported
+    asyncio.run(main())

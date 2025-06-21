@@ -1,11 +1,11 @@
 import discord
 from discord.ext import commands
-from database import *
+from main import db
 
 # Generate a leaderboard from the SQL query result
 def generate_leaderboard(rows):
     # Check if the table is empty
-    if len(rows) == 1 and rows[0] == (None, 0):
+    if len(rows) == 1 and rows[0] == (None, 0) or len(rows) == 0:
         return "There are no players in this server yet! "
 
     leaderboard_text = ""
@@ -45,7 +45,7 @@ class Leaderboard(commands.Cog):
             return
 
         if category == "wordle":
-            rows = db_get_wordle_leaderboard(ctx)
+            rows = db.db_get_wordle_leaderboard(ctx)
             embed = discord.Embed(
                 title=f"Wordle leaderboard",
                 description=generate_leaderboard(rows),
