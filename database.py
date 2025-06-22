@@ -66,6 +66,13 @@ class Database:
                         )
                        """)
 
+    # Method to get the conn and cursor object
+    def get_conn(self):
+        return self.conn
+
+    def get_cursor(self):
+        return self.cursor
+
     # Record user wordle wins in the database
     @db_error_wrapper
     def put_wordle_win(self, ctx, word):
