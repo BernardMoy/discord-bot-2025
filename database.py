@@ -73,6 +73,9 @@ class Database:
     def get_cursor(self):
         return self.cursor
 
+    def close(self):
+        self.conn.close()
+
     # Record user wordle wins in the database
     @db_error_wrapper
     def put_wordle_win(self, ctx, word):

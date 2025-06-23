@@ -1,10 +1,19 @@
 from unittest.mock import Mock
+
+import pytest
+
 from database import Database
 
-# Initialise db here
-db = Database(testing=True)
+# Initialise db here - db is the fixture parameter
+@pytest.fixture
+def db():
+    # Create a new database before each test
+    test_db = Database(testing=True)
 
-def test_put_wordle_win():
+    yield test_db
+    test_db.close()
+
+def test_put_wordle_win(db):
     # Create a mocked context object
     mock_ctx = Mock()
     mock_ctx.author.id = "1234567"
