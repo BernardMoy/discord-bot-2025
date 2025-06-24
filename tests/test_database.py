@@ -55,6 +55,7 @@ def test_get_wordle_leaderboard(db):
     assert rows[0] == (1,2)  # First user has 2 wordle wins
     assert rows[1] == (2,1)
 
+# Test that when there are no previous qotds, the scheduled time is the current time
 def test_get_qotd_next_scheduled_time_no_qotds(db):
     mock_ctx = Mock()
     mock_ctx.guild = Mock(id = 618)
@@ -65,4 +66,24 @@ def test_get_qotd_next_scheduled_time_no_qotds(db):
     # the time should be close to the current time with 1s difference
     current_time = int(time.time())
     print(current_time)
-    assert abs(current_time - scheduled_time) < 1  
+    assert abs(current_time - scheduled_time) < 1
+
+# Test that when there are previous qotds, the scheduled time is the previous latest qotd + 24 hours
+def test_get_qotd_next_scheduled_time_with_qotds(db):
+    mock_ctx = Mock()
+    mock_ctx.guild = Mock(id = 618)
+
+    # The qotds should queue after the current time
+    current_time = time.time()
+
+    # add data using same guild id
+    cursor = db.get_cursor()
+    cursor.executemany("""
+                       INSERT INTO qotds(question, user_id, guild_id, scheduled_time)
+                       VALUES (?, ?, ?, ?)""",
+                       [("q1", 123, 618, current_time+560), ("q1", 123, 615, current_time+650)])
+    db.get_conn().commit()
+
+    # the time should be 560 + 24 hrs
+    scheduled_time = db.get_qotd_next_scheduled_time(mock_ctx)
+    assert scheduled_time == current_time+560+86400
