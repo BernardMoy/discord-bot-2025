@@ -1,5 +1,5 @@
 from unittest.mock import Mock
-
+import time
 import pytest
 
 from database import Database
@@ -54,3 +54,15 @@ def test_get_wordle_leaderboard(db):
     rows = db.get_wordle_leaderboard(mock_ctx)
     assert rows[0] == (1,2)  # First user has 2 wordle wins
     assert rows[1] == (2,1)
+
+def test_get_qotd_next_scheduled_time_no_qotds(db):
+    mock_ctx = Mock()
+    mock_ctx.guild = Mock(id = 618)
+
+    # there are no previous entries of that guild id in the qotd database
+    scheduled_time = db.get_qotd_next_scheduled_time(mock_ctx)
+
+    # the time should be close to the current time with 1s difference
+    current_time = int(time.time())
+    print(current_time)
+    assert abs(current_time - scheduled_time) < 1  
