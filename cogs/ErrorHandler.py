@@ -1,3 +1,5 @@
+import logging
+
 import discord
 from discord.ext import commands
 
@@ -29,6 +31,9 @@ class ErrorHandler(commands.Cog):
                 color=discord.Color(int("fc6f03", 16)),
                 description="You cannot execute this command in a server."
             ))
+
+        else:
+            logging.error(error)
 
 async def setup(bot):
     await bot.add_cog(ErrorHandler(bot))

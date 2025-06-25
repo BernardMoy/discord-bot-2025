@@ -3,7 +3,7 @@ from discord.ext import commands
 import requests
 import re
 
-class PokemonHint(commands.Cog):
+class OnMessage(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -47,4 +47,4 @@ class PokemonHint(commands.Cog):
 
 
 async def setup(bot):
-    await bot.add_cog(PokemonHint(bot))
+    await bot.add_cog(OnMessage(bot))

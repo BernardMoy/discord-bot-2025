@@ -13,6 +13,7 @@ class Qotd(commands.Cog):
         self.loop.start()
 
     @commands.guild_only()
+    # @commands.cooldown(1, 3600, commands.BucketType.member)
     @commands.hybrid_command(name="qotd", description="Ask a question of the day")
     async def qotd(self, ctx, *, question=""):
         # Get the channel id that was set up for admin messaging
@@ -25,6 +26,7 @@ class Qotd(commands.Cog):
                 color=discord.Color(int("ff546e", 16)),
                 description="Set this up using `-setqotdchannel` in the desired channel."
             ))
+            # self.qotd.reset_cooldown(ctx)
             return
 
         # If the question is empty, reject
