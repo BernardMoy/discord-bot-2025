@@ -118,3 +118,24 @@ def test_get_unsent_qotds(db):
     assert result[0][0] == "q1"
     assert result[0][2] == 444
     assert result[0][3] is None  # No role set
+
+# Test that get scheduled qotd return the scheduled qotd of the same guild
+def test_get_scheduled_qotds(db):
+    mock_ctx = Mock()
+    mock_ctx.guild = Mock(id = 618)
+    current_time = time.time()
+
+    cursor = db.get_cursor()
+    cursor.executemany("""
+                       INSERT INTO qotds(question, user_id, guild_id, scheduled_time, sent)
+                       VALUES (?, ?, ?, ?, ?)""",
+                       [("q1", 123, 618, current_time-500, False),
+                        ("q2", 123, 618, current_time-700, True),
+                        ("q3", 123, 620, current_time-500, False)]
+                       )
+    db.get_conn().commit()
+
+    # Only q1 should be fetched: Unsent and same guild
+    result = db.get_scheduled_qotds(mock_ctx)
+    assert len(result) == 1
+    assert result[0][0] == "q1"
