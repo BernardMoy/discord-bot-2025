@@ -87,3 +87,34 @@ def test_get_qotd_next_scheduled_time_with_qotds(db):
     # the time should be 560 + 24 hrs
     scheduled_time = db.get_qotd_next_scheduled_time(mock_ctx)
     assert scheduled_time == current_time+560+86400
+
+# Test that get unsent qotds return the list of qotd that can immediately be sent
+def test_get_unsent_qotds(db):
+
+    # The qotds should queue after the current time
+    current_time = time.time()
+
+    # add data using same guild id
+    cursor = db.get_cursor()
+    cursor.executemany("""
+                       INSERT INTO qotds(question, user_id, guild_id, scheduled_time, sent)
+                       VALUES (?, ?, ?, ?, ?)""",
+                       [("q1", 123, 618, current_time-500, False),
+                        ("q2", 123, 618, current_time+200, False),
+                        ("q3", 123, 620, current_time-500, False)]
+                       )
+
+    # set the 618 guild to have a valid channel id, 620 guild doesnt
+    cursor.execute("""
+                       INSERT INTO guild_qotdchannel(guild_id, channel_id)
+                       VALUES (?, ?)""",
+                       (618, 444))
+    db.get_conn().commit()
+
+    # only q1 should be fetched
+    # q2 is in the future while q3 does not have a valid channel id
+    result = db.get_unsent_qotds()
+    assert len(result) == 1
+    assert result[0][0] == "q1"
+    assert result[0][2] == 444
+    assert result[0][3] is None  # No role set
