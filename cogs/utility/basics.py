@@ -3,11 +3,43 @@ from collections import defaultdict
 import discord
 from discord.ext import commands
 import os
+import logging
+
+
+# Given a check from a list of commands.checks, determine if it is related to has_permissions(administrator = True)
+def is_admin_check(check):
+    if not hasattr(check, "__closure__") or not check.__closure__:
+        return False
+
+    for cell in check.__closure__:
+        try:
+            if isinstance(cell.cell_contents, dict):
+                perms = cell.cell_contents
+                if perms.get("administrator", False):
+                    return True
+        except Exception as e1:
+            logging.error(e1)
+            continue
+    return False
+
+
+# Given a command object, determine if it is admin only
+def is_command_admin_only(command):
+    for check in command.checks:
+        if is_admin_check(check):
+            return True
+    return False
 
 # Organise collection of commands into this class
 class Basics(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    # Return the ping and admin command for unit testing 
+    def get_ping_command(self):
+        return self.ping
+    def get_admin_command(self):
+        return self.admin
 
     @commands.hybrid_command(name = "ping", description = "Ping the bot", with_app_command=True)
     async def ping(self, ctx):
@@ -56,28 +88,6 @@ class Basics(commands.Cog):
     async def admin(self, ctx):
         await ctx.send(f"{ctx.author.mention} is an admin.")
 
-    # Given a check from a list of commands.checks, determine if it is related to has_permissions(administrator = True)
-    def is_admin_check(self, check):
-        if not hasattr(check, "__closure__") or not check.__closure__:
-            return False
-
-        for cell in check.__closure__:
-            try:
-                if isinstance(cell.cell_contents, dict):
-                    perms = cell.cell_contents
-                    if perms.get("administrator", False):
-                        return True
-            except Exception as e1:
-                continue
-        return False
-
-    # Given a command object, determine if it is admin only
-    def is_command_admin_only(self, command):
-        for check in command.checks:
-            if self.is_admin_check(check):
-                return True
-        return False
-
     # Function to return the help message
     def get_help_message(self):
         # Dict to store cogNames (Categories) : command Names
@@ -86,7 +96,7 @@ class Basics(commands.Cog):
         for command in self.bot.commands:
             # Check if the command has permissions restrictions (Assumed they are admin checks)
             commands_dict[command.cog_name].append(
-                (command.name, command.description, self.is_command_admin_only(command)))
+                (command.name, command.description, is_command_admin_only(command)))
 
         # Iterate the dict to print the embed
         embed = discord.Embed(
