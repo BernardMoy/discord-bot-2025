@@ -33,6 +33,17 @@ class Board:
                 elements.append(self.board[h][w])
         return elements
 
+    # Given a position x,y return its rows, cols, and square coordinates all at once
+    def get_affecting_coordinates(self, x, y):
+        coords = set()
+        coords |= (set([(x,y) for x in range(len(self.board))]))
+        coords |= (set([(x,y) for y in range(len(self.board[0]))]))
+        for h in range(3*(x//3), 3*(x//3)+3):
+            for w in range(3*(y//3), 3*(y//3)+3):
+                coords.add((h,w))
+
+        return coords
+
     # Given a position x,y determine the possible set of numbers there
     def get_available(self, x, y):
         if self.board[x][y] != 0:
@@ -106,6 +117,7 @@ class Sudoku(commands.Cog):
 
         # Get the next hint
         sudoku_board.get_hint()
+        print(sudoku_board.get_affecting_coordinates(2,4))
 
         await ctx.send(sudoku_board.to_string(2,3))
 
