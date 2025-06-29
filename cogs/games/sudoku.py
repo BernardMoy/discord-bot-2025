@@ -47,6 +47,8 @@ class Board:
         return coords
 
     # Given a position x,y determine the possible set of numbers there
+    # If it already has a non-0 number, its number is the only element in the set
+    # Else, the set contains the set of {1-9} minus all elements in the same row, col and square
     def get_available(self, x, y):
         if self.board[x][y] != 0:
             return {self.board[x][y]}
@@ -58,12 +60,25 @@ class Board:
         return avail.difference(banned)
 
     # Method to get the next hint of the sudoku puzzle
+    # If one grid has available set with length 1, return its coordinate and hint value
+    # Else if one grid minus its affecting coordinate's available set and have 1 element remaining,
+    # return its coordinate and hint value
     def get_hint(self):
+        d = {}
         for row in range(len(self.board)):
             for col in range(len(self.board[row])):
                 # Find the available set of that position
                 avail_set = self.get_available(row, col)
                 print((row, col), avail_set)
+                if len(avail_set) == 1:
+                    return (row, col), list(avail_set)[0]
+
+                # Check if the available set has length 1. If yes, return the coordinate and the hint value
+                d[(row, col)] = avail_set
+
+        # For each row, col in the dict, minus all the sets from the avail set of the affecting coordinate of it
+
+        return None 
 
     # Method to print the board with a single hint position
     def to_string(self, hint_x, hint_y):
