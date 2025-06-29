@@ -20,6 +20,7 @@ class Board:
     def __init__(self, board):
         self.board = board
 
+    """
     def get_row(self, x, y):
         return self.board[x]
 
@@ -32,6 +33,7 @@ class Board:
             for w in range(3*(y//3), 3*(y//3)+3):
                 elements.append(self.board[h][w])
         return elements
+    """
 
     # Given a position x,y return its rows, cols, and square coordinates all at once
     def get_affecting_coordinates(self, x, y):
@@ -50,7 +52,9 @@ class Board:
             return {self.board[x][y]}
 
         avail = {1, 2, 3, 4, 5, 6, 7, 8, 9}
-        banned = set(self.get_row(x, y)).union(set(self.get_col(x, y))).union(set(self.get_square(x, y)))
+        banned = set()
+        for coord in self.get_affecting_coordinates(x, y):
+            banned.add(self.board[coord[0]][coord[1]])
         return avail.difference(banned)
 
     # Method to get the next hint of the sudoku puzzle
