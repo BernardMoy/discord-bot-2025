@@ -35,9 +35,20 @@ class Board:
 
     # Given a position x,y determine the possible set of numbers there
     def get_available(self, x, y):
+        if self.board[x][y] != 0:
+            return {self.board[x][y]}
+
         avail = {1, 2, 3, 4, 5, 6, 7, 8, 9}
-        banned = self.get_row(x, y).union(self.get_col(x, y)).union(self.get_square(x, y))
+        banned = set(self.get_row(x, y)).union(set(self.get_col(x, y))).union(set(self.get_square(x, y)))
         return avail.difference(banned)
+
+    # Method to get the next hint of the sudoku puzzle
+    def get_hint(self):
+        for row in range(len(self.board)):
+            for col in range(len(self.board[row])):
+                # Find the available set of that position
+                avail_set = self.get_available(row, col)
+                print((row, col), avail_set)
 
     # Method to print the board with a single hint position
     def to_string(self, hint_x, hint_y):
@@ -48,7 +59,12 @@ class Board:
                     s += ':large_orange_diamond:'
                 else:
                     s += emoji_map[self.board[row][col]]
+
+                if (col+1) % 3 == 0:
+                    s += '    '
             s += '\n'
+            if (row+1) % 3 == 0:
+                s += '\n'
         return s
 
 class Sudoku(commands.Cog):
@@ -87,6 +103,10 @@ class Sudoku(commands.Cog):
 
         # Create the board object
         sudoku_board = Board(board)
+
+        # Get the next hint
+        sudoku_board.get_hint()
+
         await ctx.send(sudoku_board.to_string(2,3))
 
 
