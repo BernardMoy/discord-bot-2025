@@ -52,6 +52,7 @@ class Board:
             for w in range(3*(y//3), 3*(y//3)+3):
                 if not (h == x and w == y):
                     coords.add((h,w))
+
         return coords
 
     # Given a position x,y return its rows, cols, and square coordinates all at once
@@ -189,27 +190,31 @@ class Sudoku(commands.Cog):
 
         # if coord is None, no hints are found
         if not coord:
-            await ctx.send(embed = discord.Embed(
+            embed_not_found = discord.Embed(
                 title="No hints found :(",
                 description=f"Is your input correct? ",
                 color=discord.Color(int("f5429e", 16))
-            ))
+            )
+            embed_not_found.set_footer(text = "A depth 1 search is too weak for this")
+            await ctx.send(embed = embed_not_found)
             return
 
         # Create the description text for the embed hint
         hint_x, hint_y = coord[0], coord[1]
-        description = sudoku_board.to_string(hint_x, hint_y) + f'\nAnswer: ||{hint_value}|| '
-
-        # Create the new command for the next iteration
-        board[hint_x][hint_y] = hint_value
-        new_command = 'Next command: \n-hintsudoku ' + ' '.join([''.join([str(c) for c in row]) for row in board])
-        description += f'\n`{new_command}`'
+        description = sudoku_board.to_string(hint_x, hint_y)
 
         embed_hint = discord.Embed(
             title = "Sudoku hint",
             description=description,
             color=discord.Color(int("5afc03", 16))
         )
+
+        embed_hint.add_field(name = "Answer", value = f'||{emoji_map[hint_value]}||', inline = False)
+
+        # Create the new command for the next iteration
+        board[hint_x][hint_y] = hint_value
+        new_command = '`' + '-hintsudoku ' + ' '.join([''.join([str(c) for c in row]) for row in board]) + '`'
+        embed_hint.add_field(name = "Next command", value = new_command, inline = False)
 
         await ctx.send(embed = embed_hint)
 
