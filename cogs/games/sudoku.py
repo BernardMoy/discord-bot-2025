@@ -35,14 +35,31 @@ class Board:
         return elements
     """
 
+    # Get the affecting coordinates of rows, cols and square, excluding the (x,y) itself 
+    def get_affecting_coordinates_row(self, x, y):
+        s = set([(x,y) for x in range(len(self.board))])
+        s.remove((x,y))
+        return s
+
+    def get_affecting_coordinates_col(self, x, y):
+        s = set([(x,y) for y in range(len(self.board[0]))])
+        s.remove((x,y))
+        return s
+
+    def get_affecting_coordinates_square(self, x, y):
+        coords = set()
+        for h in range(3*(x//3), 3*(x//3)+3):
+            for w in range(3*(y//3), 3*(y//3)+3):
+                if not (h == x and w == y):
+                    coords.add((h,w))
+        return coords
+
     # Given a position x,y return its rows, cols, and square coordinates all at once
     def get_affecting_coordinates(self, x, y):
         coords = set()
-        coords |= (set([(x,y) for x in range(len(self.board))]))
-        coords |= (set([(x,y) for y in range(len(self.board[0]))]))
-        for h in range(3*(x//3), 3*(x//3)+3):
-            for w in range(3*(y//3), 3*(y//3)+3):
-                coords.add((h,w))
+        coords |= self.get_affecting_coordinates_row(x,y)
+        coords |= self.get_affecting_coordinates_col(x,y)
+        coords |= self.get_affecting_coordinates_square(x,y)
 
         return coords
 
@@ -69,16 +86,51 @@ class Board:
             for col in range(len(self.board[row])):
                 # Find the available set of that position
                 avail_set = self.get_available(row, col)
-                print((row, col), avail_set)
-                if len(avail_set) == 1:
+                if self.board[row][col] == 0 and len(avail_set) == 1:
                     return (row, col), list(avail_set)[0]
 
                 # Check if the available set has length 1. If yes, return the coordinate and the hint value
                 d[(row, col)] = avail_set
 
         # For each row, col in the dict, minus all the sets from the avail set of the affecting coordinate of it
+        for coord, avail_set in d.items():
+            row, col = coord
 
-        return None 
+            if self.board[row][col] != 0:
+                continue
+
+            # Consider the avail set for each row, col and square of the current coord
+            avail_set_copy = avail_set.copy()
+            for a_row, a_col in self.get_affecting_coordinates_row(row, col):
+                print(a_row, a_col, avail_set_copy, "| ROW")
+                avail_set_copy -= self.get_available(a_row, a_col)
+
+            # After removing, if the set has length 1 remaining, return it
+            if len(avail_set_copy) == 1:
+                return (row, col), list(avail_set_copy)[0]
+
+            # Repeat for the column and square
+            avail_set_copy = avail_set.copy()
+            for a_row, a_col in self.get_affecting_coordinates_col(row, col):
+                print(a_row, a_col, avail_set_copy, "| COL")
+                avail_set_copy -= self.get_available(a_row, a_col)
+
+            # After removing, if the set has length 1 remaining, return it
+            if len(avail_set_copy) == 1:
+                return (row, col), list(avail_set_copy)[0]
+
+            # Square
+            avail_set_copy = avail_set.copy()
+            for a_row, a_col in self.get_affecting_coordinates_square(row, col):
+                print(a_row, a_col, avail_set_copy, "| SQ")
+                avail_set_copy -= self.get_available(a_row, a_col)
+
+            # After removing, if the set has length 1 remaining, return it
+            if len(avail_set_copy) == 1:
+                return (row, col), list(avail_set_copy)[0]
+
+        # Else, no hints found
+        return None, 0
 
     # Method to print the board with a single hint position
     def to_string(self, hint_x, hint_y):
@@ -135,10 +187,10 @@ class Sudoku(commands.Cog):
         sudoku_board = Board(board)
 
         # Get the next hint
-        sudoku_board.get_hint()
-        print(sudoku_board.get_affecting_coordinates(2,4))
-
-        await ctx.send(sudoku_board.to_string(2,3))
+        coord, hint_value = sudoku_board.get_hint()
+        if coord:
+            await ctx.send(sudoku_board.to_string(coord[0], coord[1]))
+            await ctx.send(hint_value)
 
 
 async def setup(bot):
