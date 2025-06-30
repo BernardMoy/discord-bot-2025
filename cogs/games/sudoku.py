@@ -35,7 +35,7 @@ class Board:
         return elements
     """
 
-    # Get the affecting coordinates of rows, cols and square, excluding the (x,y) itself 
+    # Get the affecting coordinates of rows, cols and square, excluding the (x,y) itself
     def get_affecting_coordinates_row(self, x, y):
         s = set([(x,y) for x in range(len(self.board))])
         s.remove((x,y))
@@ -78,8 +78,8 @@ class Board:
 
     # Method to get the next hint of the sudoku puzzle
     # If one grid has available set with length 1, return its coordinate and hint value
-    # Else if one grid minus its affecting coordinate's available set and have 1 element remaining,
-    # return its coordinate and hint value
+    # Else check the affecting coords of its row, col or square. minus the current avail set with them,
+    # and after minus if the remaining avail set has length 1, return its coordinate and hint value
     def get_hint(self):
         d = {}
         for row in range(len(self.board)):
@@ -102,27 +102,24 @@ class Board:
             # Consider the avail set for each row, col and square of the current coord
             avail_set_copy = avail_set.copy()
             for a_row, a_col in self.get_affecting_coordinates_row(row, col):
-                print(a_row, a_col, avail_set_copy, "| ROW")
                 avail_set_copy -= self.get_available(a_row, a_col)
 
             # After removing, if the set has length 1 remaining, return it
             if len(avail_set_copy) == 1:
                 return (row, col), list(avail_set_copy)[0]
 
-            # Repeat for the column and square
+            # Repeat for the column
             avail_set_copy = avail_set.copy()
             for a_row, a_col in self.get_affecting_coordinates_col(row, col):
-                print(a_row, a_col, avail_set_copy, "| COL")
                 avail_set_copy -= self.get_available(a_row, a_col)
 
             # After removing, if the set has length 1 remaining, return it
             if len(avail_set_copy) == 1:
                 return (row, col), list(avail_set_copy)[0]
 
-            # Square
+            # Repeat for square
             avail_set_copy = avail_set.copy()
             for a_row, a_col in self.get_affecting_coordinates_square(row, col):
-                print(a_row, a_col, avail_set_copy, "| SQ")
                 avail_set_copy -= self.get_available(a_row, a_col)
 
             # After removing, if the set has length 1 remaining, return it
@@ -148,6 +145,7 @@ class Board:
             if (row+1) % 3 == 0:
                 s += '\n'
         return s
+
 
 class Sudoku(commands.Cog):
     def __init__(self, bot):
@@ -188,9 +186,32 @@ class Sudoku(commands.Cog):
 
         # Get the next hint
         coord, hint_value = sudoku_board.get_hint()
-        if coord:
-            await ctx.send(sudoku_board.to_string(coord[0], coord[1]))
-            await ctx.send(hint_value)
+
+        # if coord is None, no hints are found
+        if not coord:
+            await ctx.send(embed = discord.Embed(
+                title="No hints found :(",
+                description=f"Is your input correct? ",
+                color=discord.Color(int("f5429e", 16))
+            ))
+            return
+
+        # Create the description text for the embed hint
+        hint_x, hint_y = coord[0], coord[1]
+        description = sudoku_board.to_string(hint_x, hint_y) + f'\nAnswer: ||{hint_value}|| '
+
+        # Create the new command for the next iteration
+        board[hint_x][hint_y] = hint_value
+        new_command = 'Next command: \n-hintsudoku ' + ' '.join([''.join([str(c) for c in row]) for row in board])
+        description += f'\n`{new_command}`'
+
+        embed_hint = discord.Embed(
+            title = "Sudoku hint",
+            description=description,
+            color=discord.Color(int("5afc03", 16))
+        )
+
+        await ctx.send(embed = embed_hint)
 
 
 async def setup(bot):
