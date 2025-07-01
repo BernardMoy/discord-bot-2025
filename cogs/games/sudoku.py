@@ -37,12 +37,12 @@ class Board:
     """
 
     # Get the affecting coordinates of rows, cols and square, excluding the (x,y) itself
-    def get_affecting_coordinates_row(self, x, y):
+    def get_affecting_coordinates_col(self, x, y):
         s = set([(x,y) for x in range(len(self.board))])
         s.remove((x,y))
         return s
 
-    def get_affecting_coordinates_col(self, x, y):
+    def get_affecting_coordinates_row(self, x, y):
         s = set([(x,y) for y in range(len(self.board[0]))])
         s.remove((x,y))
         return s
