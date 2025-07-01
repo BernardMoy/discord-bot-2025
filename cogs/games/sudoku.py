@@ -1,6 +1,7 @@
 from discord.ext import commands
 import discord
 import re
+import copy
 
 emoji_map = {
         0: ":black_large_square:",
@@ -147,6 +148,21 @@ class Board:
                 s += '\n'
         return s
 
+    # Debug method to print the available sets for each grid
+    def debug(self):
+        avail_set_board =copy.deepcopy(self.board)
+        for row in range(len(self.board)):
+            for col in range(len(self.board[row])):
+                avail_set = self.get_available(row, col)
+                avail_set_board[row][col] = avail_set
+
+        s = ""
+        for row in avail_set_board:
+            s += str(row)
+            s += '\n'
+        return s
+
+
 
 class Sudoku(commands.Cog):
     def __init__(self, bot):
@@ -215,6 +231,9 @@ class Sudoku(commands.Cog):
         board[hint_x][hint_y] = hint_value
         new_command = '`' + '-hintsudoku ' + ' '.join([''.join([str(c) for c in row]) for row in board]) + '`'
         embed_hint.add_field(name = "Next command", value = new_command, inline = False)
+
+        # Debug print the avail sets
+        # print(sudoku_board.debug())
 
         await ctx.send(embed = embed_hint)
 
